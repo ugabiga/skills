@@ -3,7 +3,7 @@
 이 저장소는 `https://github.com/cursor/plugins.git`의 원본 이력을 사용한다. Sparse checkout으로 `pstack`만 펼쳤다. T3 이식본을 가져오지 않았다.
 
 - `upstream`은 Cursor 공식 저장소다.
-- `origin`은 개인 포크 `https://github.com/ugabiga/plugins`다.
+- `origin`은 개인 포크 `https://github.com/ugabiga/skills`다.
 - `main`은 최초에 받은 원본 브랜치다.
 - `personal/tw-integrated`는 개인 수정 브랜치다.
 - `personal/upstream-base` 태그는 최초 원본 커밋을 기록한다.
