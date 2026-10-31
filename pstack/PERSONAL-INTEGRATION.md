@@ -1,6 +1,6 @@
 # Personal integration sources
 
-The base remains Cursor original pstack in this repository, pinned initially by the `personal/upstream-base` tag. Personal commits are maintained on `personal/tw-integrated`. Do not replace the whole pstack tree with a generated T3 port when updating upstream.
+The base remains Cursor original pstack in this repository, pinned initially by the `personal/upstream-base` tag. Personal commits are maintained on `main`. Do not replace the whole pstack tree with a generated T3 port when updating upstream.
 
 The integrated execution policy carries the TW role split, model routing and reasoning rules. The cross-host skill layout and owned-resource discovery rules were recovered from the user's local 2.1.0 policy and migration records under `~/.config/t3-pstack`. They are maintained in the repository now; the local migration script is not a runtime dependency.
 
