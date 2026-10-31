@@ -38,7 +38,7 @@ When the model rule is missing and it matters, ask whether the user wants to pic
 
 ## Get set up
 
-This is Cursor original pstack with integrated personal TW and T3 execution rules. Use the personal skills marketplace and pstack package, not the old t3-pstack install. Follow [personal maintenance](../../../PERSONAL.md) for host installation and updating the fork. The plugin name is pstack and the marketplace name is skills.
+This is Cursor original pstack with integrated personal TW and T3 execution rules. Use the personal skills marketplace and pstack package, not the old t3-pstack install. Follow [personal maintenance](https://github.com/ugabiga/skills/blob/personal/tw-integrated/PERSONAL.md) for host installation and updating the fork. The plugin name is pstack and the marketplace name is skills.
 
 Run setup-pstack to validate coordinator model choices against the live T3 catalog. Coding, tests, and device actions retain the execution-policy model routing and maximum reasoning. Browser and computer work is Antigravity-first. The policy is bundled; a separately installed TW skill is not required.
 

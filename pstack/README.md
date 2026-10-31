@@ -1,6 +1,6 @@
 # pstack
 
-This checkout maintains Cursor original pstack with personal TW and T3 execution integration. Use the `skills` marketplace and the `pstack` plugin. See [personal maintenance](../PERSONAL.md) and [integration sources and preservation checklist](PERSONAL-INTEGRATION.md) before installation or updates. The upstream documentation below describes the original distribution; personal runtime behavior is governed by the bundled execution policy.
+This checkout maintains Cursor original pstack with personal TW and T3 execution integration. Use the `skills` marketplace and the `pstack` plugin. See [personal maintenance](https://github.com/ugabiga/skills/blob/personal/tw-integrated/PERSONAL.md) and [integration sources and preservation checklist](PERSONAL-INTEGRATION.md) before installation or updates. The upstream documentation below describes the original distribution; personal runtime behavior is governed by the bundled execution policy.
 
 i'm [poteto](https://x.com/poteto). i'm not a president or ceo, but i've worked with millions of lines of code at Meta, Netflix, and Cursor. i'm also on the react core team where i help build and maintain react compiler.
 
