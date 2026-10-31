@@ -4,6 +4,8 @@ description: "Apply when you catch yourself writing the same instruction a secon
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Encode Lessons in Structure
 
 If the lesson needs judgment and cannot be encoded, make the instruction more prominent and add an example of the failure mode.

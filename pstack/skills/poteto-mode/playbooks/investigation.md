@@ -1,3 +1,5 @@
+Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 ### Investigation
 
 **You own the answer. Plan, route, write.**

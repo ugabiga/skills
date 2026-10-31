@@ -4,8 +4,7 @@ description: "Design an auditable playbook when no narrower one fits: a large mi
 disable-model-invocation: true
 ---
 
-Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
-
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
 
 # Figure it out
 

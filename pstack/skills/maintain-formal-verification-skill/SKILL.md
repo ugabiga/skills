@@ -4,8 +4,7 @@ description: "Bring a project's formal verification back in line with the code a
 disable-model-invocation: true
 ---
 
-Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
-
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
 
 # Maintain a formal verification skill
 

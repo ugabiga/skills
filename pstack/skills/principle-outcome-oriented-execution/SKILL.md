@@ -4,6 +4,8 @@ description: "Apply during planned rewrites and migrations with explicit phase b
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Outcome-Oriented Execution
 
 Optimize for the intended, verifiable end state rather than preserving smooth intermediate states.

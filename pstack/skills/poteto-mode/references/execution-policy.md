@@ -72,3 +72,41 @@ Compare receipt or status provider and model metadata with the requested target.
 An independent review requires an eligible Claude or GPT reviewer from a different family where the workflow requires it. The main coordinator's review and passing tests cannot replace that verdict. Keep the affected gate blocked if the reviewer cannot run. For findings that require reproduction, the reviewer supplies a concrete case and the main coordinator commissions the execution worker to run it.
 
 Report the change, worker validations and limitations, coordinator review, and model-evidence limits. End playbook replies with a dispatch ledger. For coordinator-owned skill authoring or configuration, record `in-thread` and the reason.
+
+## Share generated skills across hosts
+
+Skills created or maintained by any pstack workflow have one real copy in `<base>/.agents/skills/<name>/`. `<base>` is the project or user directory the skill serves. Claude Code reads a relative symlink at `<base>/.claude/skills/<name>` pointing to `../../.agents/skills/<name>`. Edit the `.agents` copy only. Never maintain separate host copies that can diverge.
+
+When the real skill lives below the repository root, also link `<repo root>/.agents/skills/<name>` to it using a relative path, within the task's authorized root scope. If root changes are excluded, report that discovery link as pending. Before moving an existing Claude-only copy, inspect and preserve its contents and any existing destination. Conflicting independent copies require a coordinator decision. Verify that each host path resolves to the same SKILL.md and preserves its frontmatter. This rule applies to generated verification skills, personal modes, and maintained skills, not to rewriting upstream plugin packaging into user skill folders.
+
+## Discover owned devices and ports
+
+Verification harnesses discover available resources at launch. Never pin an emulator, simulator, device serial, AVD, or port into a generated skill. Inventory devices and listening ports, choose a free candidate from the harness's own dedicated pool and allowed port ranges, and create the next owned pool member only when necessary. Never reuse or close a session started by the user or another agent. A free port observed during scanning still needs an actual bind when the process starts; handle contention by retrying another allowed port.
+
+Record the selected host, device, launcher session, ports, run directory, and owned process identity per checkout. Every later action and cleanup uses those recorded resources only. Provide a read-only `scan` command and print the selected values in the ready output. Validate environment overrides against the same ownership and busy rules. Scanning cannot launch, clear, or reset a device. Use the T3 device tools below for the device inventory and interaction. Build/install/log commands may use platform tools only within their supported boundary.
+
+## Use the T3 browser and device surfaces
+
+Browser actions remain execution-worker work. For a browser task, call `preview_status` first, then `preview_open` if no tab can be automated. Prefer snapshot locators. Switch browser only when tools are absent, preview_open reports unsupported, the user requests it, or two preview calls fail on one step; quote the failure before switching. Public-page research uses fetch/search unless browser work was asked. Never use preview tools to verify or show an edit unless the current request asks for browser work or names the page or tab. Close a tab the worker opened before handback unless the user asked to retain or uses it.
+
+For emulator or simulator work, the coordinator provides hostId and device id when known. The worker calls `device_list` when they are unknown, then `device_open` with both. Use its returned `agent-device` launcher for every launch, deep link, tap, entry, setting, screenshot, and recording. Open the app before input or snapshots. Look at the screen through `device_screenshot`. Do not replace interaction with adb, simctl, ssh, or a wrapper. Those tools may still build, install, sync code, forward ports, or collect logs. On a device tool failure, quote it and follow its advice once, without reusing another session. If it fails again, report the blocker. Unavailable devices are blockers, not permission to take over a different session.
+
+## Use T3 wakeups and PR tracking
+
+For an explicitly requested scheduled run, use `schedule_task` bound to this thread and remove it with `delete_scheduled_task` when finished. Do not execute a prompt the user asked only to schedule. Never use a schedule, sleep loop, watcher child, or shell polling to wait for a running delegate or PR. Delegate completion uses its returned `next` instruction.
+
+After creating, taking over, or pushing to a PR, the next call is `link_pull_request` with its full URL for every affected PR. A branch push that has no PR needs no PR creation or link. Do not link a PR only read as background. When asked to monitor a PR, or when requested work still depends on checks or reviews, finish the needed update and push, then call `watch_pull_request` and end the turn. Before final handback, call `unwatch_pull_request` for watches owned by this run. Children never watch PRs. Do not run gh --watch, watcher loops, Monitor, or scheduled wakeups for PR waiting.
+
+## Load through either host without a separate TW dependency
+
+On Codex, read poteto-mode/SKILL.md in full in a shell call of its own with `max_output_tokens: 10000`; repeat if truncated. Plugin paths come from the actual installed or supplied plugin root. Never search Cursor caches or choose a different version by guessing.
+
+The host manifests load this plugin's session-start hook. It reads the shared model sheet, honoring `session hook: off`; missing or unreadable sheets keep guidance on. Older `<host config>/t3-pstack-models.md` paths are fallback inputs only. Reconfiguration preserves an existing sheet and never silently lowers worker reasoning. Validate candidates with this plugin's `skills/setup-pstack/scripts/t3-sheet.mjs` against the live catalog before writing them. `models.json` owns the role vocabulary and defaults; scripts, setup, and hooks must agree with it.
+
+If T3 tools are not exposed, try the known orchestrator_capabilities tool once. When ACP provides T3_ACP_MCP_NODE, use the supported T3 transport, not a model CLI substitute:
+
+```sh
+ELECTRON_RUN_AS_NODE=1 "$T3_ACP_MCP_NODE" ${T3_ACP_MCP_ENTRYPOINT:+"$T3_ACP_MCP_ENTRYPOINT"} acp-mcp-call orchestrator_capabilities '{}'
+```
+
+Use that transport's delegate_task, task_status, and task_cancel with valid JSON arguments. If neither transport works, report BLOCKED. The shared TW file and its machine-specific absolute path are not dependencies of this integrated policy.

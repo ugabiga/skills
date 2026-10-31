@@ -1,0 +1,16 @@
+{
+  "name": "pstack",
+  "version": "0.15.36-personal.1",
+  "description": "Cursor original pstack with personal TW role separation and T3 execution integration.",
+  "author": {
+    "name": "Lauren Tan and personal contributors"
+  },
+  "repository": "https://github.com/ugabiga/skills",
+  "license": "MIT",
+  "agents": [
+    "./agents/comment-sicko.md",
+    "./agents/poteto-agent.md",
+    "./agents/thermo-nuclear-code-quality-review-subagent.md",
+    "./agents/thermo-nuclear-review-subagent.md"
+  ]
+}

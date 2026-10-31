@@ -1,3 +1,5 @@
+Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 ### Pause safely
 
 **You own a clean stop. Leave a checkpoint a cold-start agent can resume from.** This is explicit only. On "keep going", "going to bed, keep going", or "don't stop", do not pause.

@@ -1,8 +1,10 @@
+Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 ### Authoring or modifying a skill
 
 **You own the skill's voice.**
 
-1. Use the **create-skill** skill (Cursor's built-in for authoring SKILL.md files).
+1. Use the available skill-authoring skill, skill-creator or create-skill.
 2. Validate the skill: frontmatter has `name` and `description`, referenced files exist, cross-skill links resolve.
 3. Test cases if structural. Skip if subjective.
 4. Run **Opening a PR**.

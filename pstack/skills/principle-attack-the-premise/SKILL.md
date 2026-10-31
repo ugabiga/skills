@@ -4,6 +4,8 @@ description: "Apply when two or more fixes that share one premise have failed th
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Attack the Premise
 
 When two or more fixes that share one premise have failed the same gate, suspect the premise, not the fixes.

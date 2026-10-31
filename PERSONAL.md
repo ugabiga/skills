@@ -38,4 +38,26 @@ git show personal/upstream-base --no-patch
 git diff upstream/main...HEAD -- pstack PERSONAL.md
 ```
 
-`upstream`에는 개인 변경을 push하지 않는다. 개인 수정은 `origin`의 `personal/tw-integrated` 브랜치에 보관한다. 최초 원본 기준 태그 `personal/upstream-base`도 포크에 보관한다. 기존 T3 plugin의 교체나 Codex 스킬 설치는 포함하지 않는다.
+`upstream`에는 개인 변경을 push하지 않는다. 개인 수정은 `origin`의 `personal/tw-integrated` 브랜치에 보관한다. 최초 원본 기준 태그 `personal/upstream-base`도 포크에 보관한다.
+
+## 검증과 설치
+
+실행 정책의 변경 사항과 복구한 로컬 수정은 `pstack/PERSONAL-INTEGRATION.md`에 기록한다. 업데이트 후 다음 검증을 실행한다. 코드 구현과 테스트 실행은 TW 실행 worker가 담당한다.
+
+```sh
+node pstack/scripts/verify-personal.mjs
+node --test pstack/tests/personal/*.test.mjs
+```
+
+개인 marketplace 이름은 `skills`, plugin 이름은 `pstack`이다. 이 저장소의 로컬 경로를 등록하면 검증한 작업 트리에서 설치할 수 있다.
+
+```sh
+codex plugin marketplace add /Users/sanghwa/Developer/Github/skills
+codex plugin add pstack@skills
+claude plugin marketplace add /Users/sanghwa/Developer/Github/skills
+claude plugin install pstack@skills
+```
+
+설치는 host가 관리하는 cache에 복사된다. 브랜치 push만으로 설치본이 바뀌지는 않는다. 변경 검증 후 marketplace와 plugin을 갱신하고 새 세션에서 적용 상태를 확인한다. 기존 `t3-pstack@t3-pstack`은 새 설치본을 확인한 뒤 비활성화해 중복 안내를 막는다. 이전 cache나 모델 표를 직접 덮어쓰지 않는다.
+
+새 세션에서는 `pstack:poteto-mode`를 사용한다. 원본 관리본을 T3 실행 환경에 맞게 조정한 개인 plugin이며, T3 도구가 없는 환경에서는 실행 위임이 차단된다.

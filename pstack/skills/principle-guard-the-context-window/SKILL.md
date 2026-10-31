@@ -4,6 +4,8 @@ description: "Apply when context is filling up: large outputs, long files, repea
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Guard the Context Window
 
 **Why:** Context overflow degrades reasoning quality, creates compression artifacts, and halts progress.

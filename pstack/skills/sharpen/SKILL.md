@@ -4,8 +4,7 @@ description: "Make a task deeper, not bigger, then rewrite the prompt. Use for /
 disable-model-invocation: true
 ---
 
-Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
-
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
 
 I want a deeper version of this task, not a bigger one. Before rewriting it, do four things:
 

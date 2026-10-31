@@ -4,6 +4,8 @@ description: "Apply before writing logic: choosing core types and data structure
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Foundational Thinking
 
 **Structural decisions** protect option value. **Code-level decisions** protect simplicity.

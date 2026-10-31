@@ -4,6 +4,8 @@ description: "Apply when introducing a new internal API while old callers still 
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Migrate Callers Then Delete Legacy APIs
 
 - Update tests to assert the new contract, and delete tests that only protect pre-refactor implementation details

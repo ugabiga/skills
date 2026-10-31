@@ -3,7 +3,7 @@ name: setup-pstack
 description: Configure pstack coordinator models and budget while preserving the integrated execution-worker policy. Use for /setup-pstack, model configuration, or pstack budget changes.
 ---
 
-Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
 
 # Setup pstack
 
@@ -29,6 +29,6 @@ An alias such as `auto` or `inherit-parent` can apply only to a coordinator role
 
 Show the resolved role mapping and any unavailable requirements. Reuse choices already authorized by the user. Ask only for a genuinely missing preference. Do not replace valid settings with guessed models.
 
-Write the model sheet with the chosen budget and role values. Preserve the session-entry guidance setting. Record that the integrated role split and execution reasoning override legacy role defaults. Report the actual path and any blocked roles. These choices apply when a new workflow reads the sheet.
+Write a temporary candidate and validate it with `node <plugin root>/skills/setup-pstack/scripts/t3-sheet.mjs <candidate> <catalog.json>`, using the actual live catalog. Keep the existing sheet unchanged when validation fails. Then write the model sheet with the chosen budget and role values. Preserve the session-entry guidance setting. Record that the integrated role split and execution reasoning override legacy role defaults. Report the actual path and any blocked roles. These choices apply when a new workflow reads the sheet.
 
 If the user is setting up verification, check for an existing project harness or verify skill before offering the bundled verification or formal-verification skill. Those workflows keep the same coordinator and execution-worker split.

@@ -1,3 +1,5 @@
+Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 ### Prototype
 
 **You own the design decision, not the code. The prototype is a throwaway instrument. The real build follows Feature.**

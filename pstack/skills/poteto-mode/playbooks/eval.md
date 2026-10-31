@@ -1,3 +1,5 @@
+Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 ### Eval
 
 **You own the experiment design. Plan, blind, run, synthesize.**

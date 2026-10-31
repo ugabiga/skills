@@ -4,6 +4,8 @@ description: "Apply after completing a task, before declaring done. Verify again
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Prove It Works
 
 Verify every task output by checking the real thing directly. Do not infer from proxies, self-reports, or "it compiles."

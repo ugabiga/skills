@@ -4,6 +4,8 @@ description: "Apply when sequencing an addition, refactor, or rewrite. Remove de
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Subtract Before You Add
 
 When evolving a system, remove complexity first, then build. Default to subtraction.

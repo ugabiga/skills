@@ -1,3 +1,5 @@
+Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 ### Session pickup
 
 **You own the resume point. Read the prior trail, don't redo it.**

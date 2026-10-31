@@ -4,6 +4,8 @@ description: "Apply when product, UX, or feature-scope tradeoffs come up. Choose
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
+
 # Experience First
 
 When implementation convenience conflicts with user delight, choose delight.

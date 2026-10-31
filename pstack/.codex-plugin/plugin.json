@@ -1,0 +1,17 @@
+{
+  "name": "pstack",
+  "version": "0.15.36-personal.1",
+  "description": "Cursor original pstack with personal TW role separation and T3 execution integration.",
+  "author": {
+    "name": "Lauren Tan and personal contributors"
+  },
+  "repository": "https://github.com/ugabiga/skills",
+  "license": "MIT",
+  "skills": "./skills/",
+  "hooks": "./hooks/codex-hooks.json",
+  "interface": {
+    "displayName": "Personal pstack",
+    "shortDescription": "Cursor pstack with personal T3 and TW policies",
+    "category": "Developer Tools"
+  }
+}
