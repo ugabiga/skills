@@ -1,19 +1,15 @@
 {
-  "name": "cursor-plugins",
+  "name": "skills",
   "owner": {
-    "name": "Cursor",
-    "email": "plugins@cursor.com"
+    "name": "ugabiga"
   },
   "plugins": [
     {
-      "name": "origin-apps",
-      "source": "./origin-apps",
-      "description": "Skills for building on the Cursor Origin API. Fetch the live spec first, then follow the Origin rules for credentials, scopes, webhooks, paging, and errors. Includes a skill that plans the port of an existing GitHub App."
-    },
-    {
       "name": "pstack",
-      "source": "./harness/pstack/claude-code",
-      "description": "if you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence."
+      "source": "./pstack",
+      "version": "0.15.36-personal.1",
+      "description": "Personal Cursor pstack with T3 and TW integration."
     }
-  ]
+  ],
+  "description": "Personal Cursor pstack skills with integrated TW roles and T3 runtime support."
 }
