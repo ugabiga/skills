@@ -4,6 +4,9 @@ description: "Find the mistakes agents keep repeating in this repo and make each
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
+
+
 # Correct
 
 The operator keeps correcting agents in this repo for the same mistakes. Change the repo so the next agent can't make them.

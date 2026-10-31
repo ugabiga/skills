@@ -4,6 +4,9 @@ description: "Use for \"automate me\", \"create/update/refresh my -mode skill\",
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
+
+
 # Automate me
 
 A guided flow for turning the user's working conventions into a skill agents will follow. The output is one `-mode` skill tailored to them (e.g. `jay-mode`, `priya-mode`).

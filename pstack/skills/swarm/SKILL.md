@@ -4,6 +4,9 @@ description: "Fan out N parallel workers, drain them, and return one report. Use
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
+
+
 # Swarm
 
 ## Start

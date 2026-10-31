@@ -4,6 +4,9 @@ description: "Check a TLA+ model of a system that moves between states, such as 
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
+
+
 # Statechart
 
 The chart shows how a system moves between states, in the words of the person who reads it. That person, the reader, decides whether the behavior is right.

@@ -4,6 +4,9 @@ description: "Spawn Comment Sicko, fix accepted findings, and offer encodings fo
 disable-model-invocation: true
 ---
 
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
+
+
 # No comments
 
 Spawn Comment Sicko. Act on accepted findings.

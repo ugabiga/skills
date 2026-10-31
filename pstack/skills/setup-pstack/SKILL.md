@@ -1,78 +1,34 @@
 ---
 name: setup-pstack
-description: Configure which models pstack uses per role and at what reasoning budget. Detects your available models and writes an always-applied rule that overrides the skill defaults. Use for /setup-pstack, "configure pstack models", "pstack budget", or changing pstack's model choices.
+description: Configure pstack coordinator models and budget while preserving the integrated execution-worker policy. Use for /setup-pstack, model configuration, or pstack budget changes.
 ---
+
+Read the integrated [personal execution policy](../poteto-mode/references/execution-policy.md) before this workflow. Its role split, execution models, and dispatch rules override conflicting defaults and examples below.
 
 # Setup pstack
 
-Write `~/.cursor/rules/pstack-models.mdc`, an always-applied rule that sets pstack's model per role.
+Configure coordinator perspectives without changing execution-worker permissions or reasoning. This personal version writes `$XDG_CONFIG_HOME/t3-pstack/models.md`, or `~/.config/t3-pstack/models.md` when XDG_CONFIG_HOME is unset. It does not write Cursor model slugs or require a separately installed TW skill.
 
-## Steps
+## Detect and load
 
-### 1. Detect available models
+Call `orchestrator_capabilities` according to the execution policy. Confirm Claude and GPT coordinator IDs and supported options. Confirm execution candidates in the policy when those roles need validation. Never invent IDs or reasoning options. No available candidate means a reported blocker, not a change of provider family.
 
-Enumerate the model slugs you can pass to a `Task` subagent in this session. That is the dependable source. If Cursor also exposes a models API or CLI that lists the user's entitled models, prefer it for completeness. If you cannot detect any, ask the user to paste the slugs they have access to. Never write a real slug you have not confirmed is available. The aliases `inherit-parent` and `auto` are always valid even though they are not detected slugs.
+Read the existing sheet if present. Preserve unrelated settings and valid explicit user choices. New configurations default to small coordinator budget with medium reasoning. Keep pstack entry guidance enabled. Do not ask for a budget already selected in the conversation or sheet. When the user requests a different budget, offer small, medium, large, or unlimited, mapped to medium, high, xhigh, or max coordinator reasoning, using the nearest supported value and disclosing adjustments.
 
-### 2. Load current state
+## Select roles
 
-The default role-to-model mapping is the rule shape shown in step 5 below. If `~/.cursor/rules/pstack-models.mdc` already exists, read it and treat its `# budget` line and its role values as the current choices. Otherwise start from those defaults. A line whose role is not in step 5, such as `how critics`, is from a retired role. Drop it.
+Use `<providerInstanceId>/<modelId> <optionId>=<value>` entries. Split at the first slash. Validate each ID and option against the live catalog.
 
-### 3. Budget, map, and confirm
+Claude and GPT own judgment, prose, investigation, design, and review roles. Preserve the existing role labels used by bundled skills. For new coordinator entries, prefer the live Claude Opus 5.5 and GPT 6.1 Sol IDs only when confirmed available. Arena runners, architect runners, interrogate reviewers, and cross-judge pools contain Claude and GPT perspectives only. Preserve any required independent family. Do not silently reduce a required panel when a family is missing.
 
-**(a) Ask for a budget.** Prefer AskQuestion over free text. Offer these four options with these exact labels, and name the current budget when the rule records one. With no rule, say that `large` matches the skill defaults.
+The feature, refactoring, bug-fix, perf-issue, hillclimb, and swarm-worker execution entries follow the execution policy's ordered OpenCode choices. The hardest-tasks role selects a design perspective, not permission for a Claude or GPT child to implement. Browser and computer actions follow the Antigravity-first policy. Worker reasoning stays at the model's supported maximum for every budget. Never add Grok or an inherited-parent execution fallback.
 
-- `unlimited — max reasoning`
-- `large — xhigh reasoning`
-- `medium — high reasoning`
-- `small — medium reasoning`
+An alias such as `auto` or `inherit-parent` can apply only to a coordinator role whose inherited family is Claude or GPT. Panelists return execution requests to the main coordinator rather than creating children.
 
-**(b) Apply it.** Build the working table from the skill defaults, and on a re-run keep any role you changed by family, list, or alias (`inherit-parent`, `auto`). `unlimited`, `large`, `medium`, and `small` set the effort token of every real slug, panel entries included, to `max`, `xhigh`, `high`, or `medium`. The effort token is the last token, or the one before a trailing `fast`, on the ladder `max` > `xhigh` > `high` > `medium` > `low`. If the result is not a detected slug, use the same family's detected slug with the highest effort at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. So `unlimited` turns `claude-opus-5-5-xhigh` into `claude-opus-5-5-max`. Grok slugs top out at `xhigh`, so under `unlimited` the fallback puts Grok at `xhigh` and keeps `grok-4.7-xhigh-fast` as it is. `large` keeps both defaults. `small` turns them into `claude-opus-5-5-medium` and `grok-4.7-medium-fast`.
+## Write and report
 
-**(c) Show the roles and confirm.** Show every role with its model, marking any real slug not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected models plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat model, which is how Auto users stay on Auto) as the options. Prefer AskQuestion over free text. For panel roles (arena runners, architect runners, interrogate reviewers) the value is a list, and one subagent runs per entry, alias entries included, so the list length sets the count. `arena cross-judge pool` is also a list, but Arena runs one judge. It tries only values from a family other than the parent's, in list order, so order it by preference. An `inherit-parent` or `auto` value never judges. `swarm workers` is the default model for every worker unless a race or comparison assigns another model per arm.
+Show the resolved role mapping and any unavailable requirements. Reuse choices already authorized by the user. Ask only for a genuinely missing preference. Do not replace valid settings with guessed models.
 
-### 4. Validate
+Write the model sheet with the chosen budget and role values. Preserve the session-entry guidance setting. Record that the integrated role split and execution reasoning override legacy role defaults. Report the actual path and any blocked roles. These choices apply when a new workflow reads the sheet.
 
-Every real slug written must be in the detected set. `inherit-parent` and `auto` always pass. If a chosen real slug is not available, stop and ask again.
-
-### 5. Write the rule
-
-Write `~/.cursor/rules/pstack-models.mdc` with `alwaysApply: true`, a `# budget` line with the chosen label and its target effort, and one line per role, using the same labels poteto-mode uses. Overwrite the whole file so re-runs stay idempotent. Shape:
-
-```
----
-description: pstack per-role model choices (overrides skill defaults)
-alwaysApply: true
----
-# pstack model configuration. One line per role. Delete a line to fall back to the skill default.
-# `inherit-parent` or `auto` as a value: the role runs on the parent chat model (omit Task `model`). Alias entries in a panel list still count toward its fan-out.
-# budget: large (xhigh)
-feature, refactoring: grok-4.7-xhigh-fast
-bug-fix: grok-4.7-xhigh-fast
-perf-issue: grok-4.7-xhigh-fast
-hillclimb: grok-4.7-xhigh-fast
-judgment and prose: claude-opus-5-5-xhigh
-hardest tasks: claude-opus-5-5-xhigh
-how explorer: grok-4.7-xhigh-fast
-how explainer: claude-opus-5-5-xhigh
-why investigators: grok-4.7-xhigh-fast
-why synthesizer: claude-opus-5-5-xhigh
-reflect tooling: grok-4.7-xhigh-fast
-reflect judgment, divergent, synthesizer: claude-opus-5-5-xhigh
-arena runners: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-arena cross-judge pool: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-swarm workers: grok-4.7-xhigh-fast
-architect runners: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-interrogate reviewers: claude-opus-5-5-xhigh, grok-4.7-xhigh-fast
-```
-
-### 6. Confirm
-
-Tell the user the rule was written and that it applies to new sessions. Re-running this skill updates it.
-
-### 7. Offer a verification skill (optional)
-
-Check whether the project has a way to drive the real app for proof (a `verify-*` skill, or an existing harness). If not, offer once: "want a project-local verification skill, so agents can drive the app the way a user does and prove changes work? I can generate one with /create-verification-skill." On yes, invoke `/create-verification-skill` (resolves wherever pstack is installed: workspace, user, or plugin). On no, move on without pushing.
-
-### 8. Offer a formal verification skill (optional)
-
-Check whether the project already has a formal verification skill (a project skill that runs a model checker, a proof, or another verifier against the code). If not, offer once: "want a formal verification skill, so agents can prove a key property of your code holds in every case in scope, not only the cases tests reach? I can generate one with /create-formal-verification-skill." On yes, invoke `/create-formal-verification-skill` (resolves wherever pstack is installed: workspace, user, or plugin). On no, move on without pushing.
+If the user is setting up verification, check for an existing project harness or verify skill before offering the bundled verification or formal-verification skill. Those workflows keep the same coordinator and execution-worker split.
