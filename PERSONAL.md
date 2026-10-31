@@ -3,6 +3,7 @@
 이 저장소는 `https://github.com/cursor/plugins.git`의 원본 이력을 사용한다. Sparse checkout으로 `pstack`만 펼쳤다. T3 이식본을 가져오지 않았다.
 
 - `upstream`은 Cursor 공식 저장소다.
+- `origin`은 개인 포크 `https://github.com/ugabiga/plugins`다.
 - `main`은 최초에 받은 원본 브랜치다.
 - `personal/tw-integrated`는 개인 수정 브랜치다.
 - `personal/upstream-base` 태그는 최초 원본 커밋을 기록한다.
@@ -28,6 +29,8 @@ git rebase upstream/main
 
 업데이트마다 스킬 진입점의 정책 참조, 새 실행 지침과 정책의 충돌, 모델 선택, setup-pstack, 상대 링크를 확인한다. 새로 추가된 workflow 스킬에도 정책 진입점을 붙인다. 구조 검증과 실행 사례 검증이 끝난 변경만 사용한다.
 
+검증한 개인 변경은 `git push origin personal/tw-integrated`로 포크에 보관한다. 이미 push한 커밋을 rebase하면 원격 이력도 바뀐다. 먼저 원격 변경과 협업 여부를 확인하고, 명시적으로 승인된 경우에만 `git push --force-with-lease origin personal/tw-integrated`를 사용한다. 이력 재작성을 피해야 하는 공유 브랜치에서는 rebase 대신 `git merge upstream/main`으로 원본을 통합한다.
+
 최초 기준과 현재 개인 변경은 다음 명령으로 확인한다.
 
 ```sh
@@ -35,4 +38,4 @@ git show personal/upstream-base --no-patch
 git diff upstream/main...HEAD -- pstack PERSONAL.md
 ```
 
-`upstream`에는 개인 변경을 push하지 않는다. 개인 GitHub 저장소를 만들면 별도 `origin`으로 추가한다. 현재 작업은 로컬 관리본 생성이며, 기존 T3 plugin의 교체나 Codex 스킬 설치는 포함하지 않는다.
+`upstream`에는 개인 변경을 push하지 않는다. 개인 수정은 `origin`의 `personal/tw-integrated` 브랜치에 보관한다. 최초 원본 기준 태그 `personal/upstream-base`도 포크에 보관한다. 기존 T3 plugin의 교체나 Codex 스킬 설치는 포함하지 않는다.
