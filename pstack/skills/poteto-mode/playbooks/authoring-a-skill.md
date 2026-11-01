@@ -1,5 +1,7 @@
 Read the integrated [personal execution policy](../references/execution-policy.md) first. Its role split, model selection, and T3 execution rules govern this file.
 
+Apply the policy's [small-task route](../references/execution-policy.md#route-small-tasks-before-selecting-a-playbook) before this playbook. Its automatic delegation and review exceptions take precedence over the steps below, including PR preparation. Explicit specialist requests and shipping gates still apply.
+
 ### Authoring or modifying a skill
 
 **You own the skill's voice.**

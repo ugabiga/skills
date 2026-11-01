@@ -38,6 +38,20 @@ A sheet entry has the form `<providerInstanceId>/<modelId> <optionId>=<value>`. 
 
 The selected coordinator budget is small, with medium reasoning. Keep pstack entry guidance enabled and announce the matched playbook once. Apply the budget to coordinator targets only. Use the nearest supported coordinator reasoning value when medium is unavailable and disclose it. An alias such as `auto` or `inherit-parent` is valid only for coordinator work when the inherited family is Claude or GPT. Use explicit supported targets for execution. User-requested model changes remain subject to the role split unless the user explicitly changes that policy.
 
+## Route small tasks before selecting a playbook
+
+The main coordinator classifies the task before loading routed skills or selecting a playbook. Use the small-task route when the approach is clear, the affected behavior and callers are local and understood, and a concrete validation can establish the requested result. File count and diff length alone do not qualify a task. Read the necessary files in-thread to establish these facts. Record the route and its reason in one sentence, without asking for confirmation.
+
+Changes to public APIs, persisted data formats or migrations, authentication, authorization, billing, or concurrency use the normal playbook route. Uncertain impact, unresolved design choices, or cross-cutting changes also use the normal route. A one-line change can still require that route.
+
+For a small task, the coordinator defines a bounded specification, an execution worker implements and performs the necessary validation, and the coordinator reads the actual diff and validation evidence before accepting completion. Skill and configuration authoring remain coordinator-owned. Preserve existing changes. Bug fixes still require reproduction and verification of the original failure; refactoring still requires evidence that behavior is preserved. Keep validation proportional to the affected behavior.
+
+This route takes precedence over automatic how delegation, architect design panels, arena candidates and cross-judges, interrogate panels, and no-comments reviewer calls in poteto-mode and its routed playbooks. Do not load or dispatch these workflows solely because a small change crosses a function boundary, admits incidental implementation alternatives, or reaches review or PR preparation. The coordinator inspects comments and code quality during its own review. A short task list replaces mandatory playbook todo copying and throughput checkpoints for this route.
+
+Explicit user requests for a named specialist workflow or independent review still apply. Preserve shipping and merge approval gates, authorization boundaries, runtime evidence requirements, execution model selection and maximum worker reasoning. The coordinator budget does not select this route. Reclassify before further implementation if investigation, worker blockers, or the diff reveal broader impact or a design decision; retain valid evidence and use the normal playbook for the remaining work.
+
+Completion of a small local task does not require opening a PR. When a PR is requested or needed by the task, apply Opening a PR with the same small-task review exception. Report the change, worker validations or coordinator-owned authoring checks, limitations, and coordinator review. Passing checks do not establish model compliance with this routing policy.
+
 ## Dispatch a bounded task
 
 Complete investigation and choose the implementation approach before dispatch. Independent write tasks must own disjoint files or modules. Use `isolation: "worktree"` only when a separate checkout is required and supported by the tool. Let T3 prepare it. Do not create child worktrees in the shell or in the prompt. For a shared checkout, name exact absolute owned paths and preserve all existing user changes.

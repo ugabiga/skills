@@ -14,6 +14,10 @@ On Codex, read this SKILL.md whole in a shell call of its own with `max_output_t
 
 Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's absolute path in every `poteto-agent` prompt.
 
+## Route before applying triggers
+
+Apply [Route small tasks before selecting a playbook](references/execution-policy.md#route-small-tasks-before-selecting-a-playbook) first. It owns the classification criteria, small-task workflow, automatic panel and reviewer exceptions, and reclassification rules. Apply the triggers and playbooks below subject to that policy. For a qualifying small task, complete bounded execution and coordinator review without automatic specialist delegation. Honor explicit specialist requests and shipping gates.
+
 ## Non-negotiables
 
 The Principles section below grounds every trigger. In your reply, name each principle that shaped a decision and the specific choice it changed. Cite only principles whose leaf SKILL.md you read this session.
@@ -24,14 +28,14 @@ Remaining triggers:
 - Nontrivial change, architecture decision, or "are we sure?" → the **how** skill.
 - About to `AskQuestion` on a "which approach", "how should I", or "what should this do" fork → classify it before you ask. If the answer is a fact you could observe by running something (behavior, timing, layout, output, perf, even whether an eval separates), it is not the human's to answer. Sketch it via the Prototype playbook (`playbooks/prototype.md`) and let the result decide. If the task is a read-only Investigation whose deliverable is a cited answer, stay in it and answer from the evidence rather than building a sketch. Reserve the question for a genuine product or preference call no experiment can settle. Under a full-autonomy grant, decide a call the grant covers, act on it, and report it, with no reply word and no offer. Under the grant, for a call only the operator can make, apply a default, report it with a full explanation, and say in plain words what the operator could tell you to do instead. The operator answers in their own words. Never give a shorthand token to type back. Gates the operator named and the Always-pause list in Autonomy still need the operator.
 - Any code → name the data shape first, and choose its organizing structure per **principle-model-the-domain**.
-- Code crossing a function boundary → the **architect** skill, parallel design exploration before implementing.
+- Code crossing a function boundary → the **architect** skill, parallel design exploration before implementing, subject to the small-task route above.
 - Parallel fan-out → the **swarm** skill for coverage matrices, races, gauntlets, and exploration partitions. Use **arena** for design or code bakeoffs with base selection and grafting.
 - Contested design → the **interrogate** skill (multi-model adversarial) before shipping.
 - Nontrivial multi-step → write the throughput checkpoint (Feature step 3).
 - Any prose surface, your reply to the user included → the **unslop** skill. Write the reply per **Writing the reply**. Agent-facing prose follows the available skill-authoring skill, `skill-creator` or Cursor's `create-skill`.
 - Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/technical-writing`).
 - Before commit → the bundled `deslop` skill (`/deslop`).
-- Before review → the **no-comments** skill (`/no-comments`).
+- Before review → the **no-comments** skill (`/no-comments`), subject to the small-task route above.
 - Shipping UI / IDE / CLI → the matching control skill. Use the project's verify skill. Browser work uses T3 `preview_*`; emulator work uses T3 `device_*` and the bound launcher. Execution is performed by the selected worker. For bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception.
 - Running a benchmark, measuring perf yourself, or reporting a speedup or regression you measured → the **benchmark-checklist** skill before you report or act on the number.
 - Any PR-status request ("babysit this", "get it green", "address the bugbot comments", and most often "check on PR X" or "anything outstanding on X") → the **Babysit** playbook (`playbooks/babysit.md`), not Cursor's built-in babysit skill, whose description matches the same words. Never triggered by merely opening a PR. Declare its mode before polling. The playbook's step 1 owns the request-to-mode mapping. Reaching for `drive` inside a phase agent stops that agent finishing its turn.
@@ -97,7 +101,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 Follow the integrated [personal execution policy](references/execution-policy.md) for roles, models, dispatch, fallback, and verification. It takes precedence over the original Task examples and routed skill defaults. The main coordinator runs the playbook and owns investigation, design, review, skill authoring, and configuration. Execution workers implement and validate bounded specifications. Claude and GPT panelists never execute code or drive an app.
 
-Preserve the original playbook's review and evidence gates. Translate execution steps into a worker specification after the coordinator has resolved their approach. Keep independent file ownership for parallel writers. Never delegate the whole playbook to an execution worker.
+Preserve the original playbook's review and evidence gates subject to the small-task route in the execution policy. Translate execution steps into a worker specification after the coordinator has resolved their approach. Keep independent file ownership for parallel writers. Never delegate the whole playbook to an execution worker.
 
 End every reply that ran a playbook with a dispatch ledger naming each delegated role, actual provider and model, or `in-thread` with the coordinator-owned reason.
 
