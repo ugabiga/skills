@@ -78,7 +78,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 ## Step 4. Synthesize
 
-Spawn one synthesizer. `model`: the `why synthesizer` line, default `claudeAgent/claude-opus-5-5 effort=medium`. It gets:
+Spawn one synthesizer. `model`: the `why synthesizer` line, default `codex/gpt-6.1-sol reasoningEffort=medium`. It gets:
 1. The investigator findings, including any null results and any categories skipped with justification
 2. The code anchor
 3. The user's original question

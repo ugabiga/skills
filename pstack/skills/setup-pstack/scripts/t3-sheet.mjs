@@ -16,10 +16,15 @@
 //
 // Personal role policy (mirrors pstack/models.json and the integrated
 // execution policy):
-// - Coordinator roles (default and panel tiers) use Claude or GPT families
-//   only. Grok and every other family are excluded.
-// - Panel roles need two distinct Claude/GPT families and no execution
-//   target. `inherit-parent`/`auto` never counts as a family.
+// - Default and panel tiers use GPT family only. Claude is reserved for
+//   UI visual design; Grok and every other family are excluded.
+// - ui-design tier uses Claude family only. GPT targets stay on general
+//   roles; Grok and every other family are excluded.
+// - Coordinator roles (default, panel, ui-design) must name an explicit
+//   target: `inherit-parent`/`auto` is rejected so routing stays explicit.
+// - Panel roles list one or more concrete GPT targets as independent
+//   reviews (separate tasks, no cross-family requirement). An empty or
+//   alias-only panel is rejected, as is a duplicate target.
 // - Execution roles (worker tier) name exactly one of
 //   opencode-go/muse-spark-1.3-contributor, opencode-go/beam-free, or
 //   opencode-go/muse-spark-1.2-contributor on a provider instance whose
@@ -38,7 +43,8 @@ import { fileURLToPath } from "node:url";
 
 export const INHERIT = ["inherit-parent", "auto"];
 const HOOK_VALUES = ["on", "off"];
-const COORDINATOR_FAMILIES = new Set(["claude", "gpt"]);
+const GPT_FAMILY = "gpt";
+const UI_FAMILY = "claude";
 const EXEC_DRIVER = "opencode";
 // Recognized reasoning option identifiers for execution models. Other
 // options (for example a speed preset with low/high values) are not
@@ -217,11 +223,17 @@ function checkRoleEntry(role, entry, catalog) {
     return problems;
   }
   if (execClass(entry.model)) {
-    return [`${at}: coordinator roles use Claude or GPT perspectives; execution targets stay on worker roles`];
+    return [`${at}: coordinator roles use GPT or Claude perspectives; execution targets stay on worker roles`];
   }
   const fam = family(entry.model);
-  if (!COORDINATOR_FAMILIES.has(fam)) {
-    return [`${at}: coordinator roles use Claude or GPT families, not "${fam}" (Grok and other families are excluded)`];
+  if (role.tier === "ui-design") {
+    if (fam !== UI_FAMILY) {
+      return [`${at}: ui-design roles use Claude family only, not "${fam}" (GPT targets stay on general roles; Grok and other families are excluded)`];
+    }
+    return [];
+  }
+  if (fam !== GPT_FAMILY) {
+    return [`${at}: coordinator roles use GPT family only, not "${fam}" (Claude is reserved for UI visual design; Grok and other families are excluded)`];
   }
   return [];
 }
@@ -241,8 +253,12 @@ function checkRole(role, texts, catalog, label) {
       report(err.message);
     }
   }
-  if (entries.includes(null) && role.tier === "worker") {
-    report("inherit-parent/auto is for coordinator roles only; execution entries must name an OpenCode target explicitly");
+  if (entries.includes(null)) {
+    if (role.tier === "worker") {
+      report("inherit-parent/auto is rejected; execution entries must name an OpenCode target explicitly");
+    } else {
+      report("inherit-parent/auto is rejected; coordinator entries must name an explicit target so routing stays explicit");
+    }
   }
   const targets = texts.map((t) => t.trim()).filter((t) => !INHERIT.includes(t));
   if (new Set(targets).size < targets.length) report("lists the same target twice");
@@ -257,12 +273,16 @@ function checkRole(role, texts, catalog, label) {
     if (!found.length) runnable.push(entry);
   }
   if (role.tier === "panel") {
-    const families = panelFamilies(runnable);
-    const usable = [...families].filter((f) => COORDINATOR_FAMILIES.has(f));
-    if (usable.length < 2 || families.size !== usable.length) {
-      report(
-        `a panel needs two distinct Claude/GPT families among its targets (inherit-parent does not count), got ${[...families].join(", ") || "none"}`,
-      );
+    if (!concrete.length) {
+      report("a panel needs one or more explicit GPT targets (inherit-parent/auto does not count)");
+    } else if (!runnable.length) {
+      report("a panel needs at least one dispatchable GPT target");
+    } else {
+      const families = panelFamilies(runnable);
+      const nonGpt = [...families].filter((f) => f !== GPT_FAMILY);
+      if (nonGpt.length) {
+        report(`a panel needs GPT targets only, got ${[...families].join(", ")}`);
+      }
     }
   }
   return problems;

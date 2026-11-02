@@ -22,7 +22,8 @@ Use the provider instance whose driver matches the table. The provider instance 
 | --- | --- | --- |
 | Coding, tests, emulator actions | OpenCode `opencode-go/muse-spark-1.3-contributor`, `variant=xhigh` | OpenCode `opencode-go/beam-free`, `variant=max`, then `opencode-go/muse-spark-1.2-contributor`, `variant=xhigh` |
 | Browser and computer actions | Antigravity `gemini-3.8-flash-high`, options `{}` | The three OpenCode choices above in order |
-| Investigation, design, prose, review | Claude or GPT from the model sheet | Available Claude or GPT choices within the requested panel and its independence requirements |
+| General investigation, architecture, prose, review | GPT 6.1 Sol, `reasoningEffort=medium`, from the model sheet | Report unavailable targets; do not substitute Claude |
+| UI visual design, layout, styling, interaction presentation | Claude Opus 5.5, `effort=medium`, from `ui design` | Report unavailable targets; do not substitute a general role |
 
 These execution fallbacks are the TW snapshot imported on 2026-10-31. This file owns the integrated defaults. They are not connected to Butter's TW auto-update job. Reconcile future changes explicitly in Git. Confirm availability at dispatch time. Do not infer availability from this table.
 
@@ -32,11 +33,15 @@ Try the next execution candidate only for an unavailable provider or model, rate
 
 ## Keep model settings subordinate to roles
 
-Read `$XDG_CONFIG_HOME/t3-pstack/models.md`, or `~/.config/t3-pstack/models.md` when XDG_CONFIG_HOME is unset. Existing configuration is optional. With no sheet, coordinator targets default to Claude Opus 5.5 and GPT 6.1 Sol only when their IDs and options are confirmed in the live catalog. If a required family is unavailable, preserve the review gate and report the missing reviewer.
+Read `$XDG_CONFIG_HOME/pstack/models.md`, or `~/.config/pstack/models.md` when XDG_CONFIG_HOME is unset. Existing configuration is optional. With no sheet, general coordinator roles and panel pools default to GPT 6.1 Sol with medium reasoning. Only the `ui design` role defaults to Claude Opus 5.5 with medium effort. Confirm IDs and options in the live catalog. Report an unavailable required target rather than switching families.
 
-A sheet entry has the form `<providerInstanceId>/<modelId> <optionId>=<value>`. Split at the first slash. Role values and panel lists select perspectives, but cannot give a Claude or GPT role execution rights. Legacy code-role entries that point to Claude or GPT do not override the execution table. Arena, architect, and interrogate panels use Claude and GPT only. Their implementation and runtime checks go through the main coordinator to execution workers.
+A sheet entry has the form `<providerInstanceId>/<modelId> <optionId>=<value>`. Split at the first slash. Role values and panel lists select perspectives, but cannot give a Claude or GPT role execution rights. Legacy code-role entries that point to Claude or GPT do not override the execution table. General arena, architect, and interrogate panels use GPT only. Use separate tasks and perspectives for independent reviews; a different model family is not required. Route UI visual design perspectives through `ui design` instead of the general panel pool. Their implementation and runtime checks go through the main coordinator to execution workers.
 
-The selected coordinator budget is small, with medium reasoning. Keep pstack entry guidance enabled and announce the matched playbook once. Apply the budget to coordinator targets only. Use the nearest supported coordinator reasoning value when medium is unavailable and disclose it. An alias such as `auto` or `inherit-parent` is valid only for coordinator work when the inherited family is Claude or GPT. Use explicit supported targets for execution. User-requested model changes remain subject to the role split unless the user explicitly changes that policy.
+The selected coordinator budget is small, with medium reasoning. Keep pstack entry guidance enabled and announce the matched playbook once. Apply the budget to coordinator targets only. Use the nearest supported coordinator reasoning value when medium is unavailable and disclose it. Use explicit supported targets for every role. Do not use `auto` or `inherit-parent`, which could select the wrong family for the role. User-requested model changes remain subject to the role split unless the user explicitly changes that policy.
+
+## Route UI design separately
+
+Use the `ui design` model-sheet role for visual composition, layout, typography, color, styling, and interaction presentation in UI work. Use it as an inspect-only design perspective. General code structure, notification behavior, debugging, prose, and code review stay with GPT even when they concern a UI feature. For mixed work, split the visual design perspective from general analysis. Claude returns the UI design and rationale only; approved implementation, tests, screenshots, and browser or device actions still go to the existing execution workers. Never use Claude as a general-role fallback. Do not use an inherited Claude target for general roles.
 
 ## Route small tasks before selecting a playbook
 
@@ -83,7 +88,7 @@ DONE is a report, not approval. The coordinator reads the actual files and diff,
 
 Compare receipt or status provider and model metadata with the requested target. Record requested reasoning options. If runtime metadata does not independently expose reasoning, say it is unverified rather than treating the worker's claim as evidence. Stop mismatched work before further execution.
 
-An independent review requires an eligible Claude or GPT reviewer from a different family where the workflow requires it. The main coordinator's review and passing tests cannot replace that verdict. Keep the affected gate blocked if the reviewer cannot run. For findings that require reproduction, the reviewer supplies a concrete case and the main coordinator commissions the execution worker to run it.
+An independent general review requires a separate GPT reviewer task, not a different model family. This overrides bundled cross-family and two-family panel requirements. Claude is reserved for UI visual design, not general code review. The main coordinator's review and passing tests cannot replace that verdict. Keep the affected gate blocked if the reviewer cannot run. For findings that require reproduction, the reviewer supplies a concrete case and the main coordinator commissions the execution worker to run it.
 
 Report the change, worker validations and limitations, coordinator review, and model-evidence limits. End playbook replies with a dispatch ledger. For coordinator-owned skill authoring or configuration, record `in-thread` and the reason.
 
@@ -115,7 +120,7 @@ After creating, taking over, or pushing to a PR, the next call is `link_pull_req
 
 On Codex, read poteto-mode/SKILL.md in full in a shell call of its own with `max_output_tokens: 10000`; repeat if truncated. Plugin paths come from the actual installed or supplied plugin root. Never search Cursor caches or choose a different version by guessing.
 
-The host manifests load this plugin's session-start hook. It reads the shared model sheet, honoring `session hook: off`; missing or unreadable sheets keep guidance on. Older `<host config>/t3-pstack-models.md` paths are fallback inputs only. Reconfiguration preserves an existing sheet and never silently lowers worker reasoning. Validate candidates with this plugin's `skills/setup-pstack/scripts/t3-sheet.mjs` against the live catalog before writing them. `models.json` owns the role vocabulary and defaults; scripts, setup, and hooks must agree with it.
+The host manifests load this plugin's session-start hook. It reads the shared model sheet, honoring `session hook: off`; missing or unreadable sheets keep guidance on. Only the shared `pstack/models.md` path is read; per-host fallback sheets are not used. Reconfiguration preserves an existing sheet and never silently lowers worker reasoning. Validate candidates with this plugin's `skills/setup-pstack/scripts/t3-sheet.mjs` against the live catalog before writing them. `models.json` owns the role vocabulary and defaults; scripts, setup, and hooks must agree with it.
 
 If T3 tools are not exposed, try the known orchestrator_capabilities tool once. When ACP provides T3_ACP_MCP_NODE, use the supported T3 transport, not a model CLI substitute:
 

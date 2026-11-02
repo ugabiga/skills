@@ -16,7 +16,7 @@ The scope is what the user names. Otherwise it is the branch diff from its merge
 
 ## Fan out
 
-Use inspect-only Claude and GPT reviewers from `interrogate reviewers` through `delegate_task`, `role: "review"`. Give them the exact scope, intent, and evidence. They return candidate failures with a concrete reproduction specification. They do not run code, edit files, or create children. The main coordinator commissions reproduction from an execution worker and supplies results to a fresh review round.
+Use inspect-only GPT reviewers in separate tasks from `interrogate reviewers` through `delegate_task`, `role: "review"`. Give them the exact scope, intent, and evidence. They return candidate failures with a concrete reproduction specification. They do not run code, edit files, or create children. The main coordinator commissions reproduction from an execution worker and supplies results to a fresh review round.
 
 > Find failures of the stated intent. For each candidate, give the location, input or precondition, reproduction procedure, expected output, and reasoning. Request runtime evidence from the main coordinator. Label the finding unverified until commissioned execution proves it. Do not run commands, edit files, or create children. No findings is a valid result.
 

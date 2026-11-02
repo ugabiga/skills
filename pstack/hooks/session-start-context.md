@@ -11,5 +11,7 @@ Use T3-owned delegate_task and confirmed live targets. Coding, tests, and emulat
 
 Generated skills have one real .agents/skills copy with relative .claude/skills links. Verification harnesses discover free devices and ports from their own pool at launch, record the choices per checkout, and provide a read-only scan command. Device interaction uses T3 device_open's bound launcher. Browser work uses the T3 preview flow only when requested.
 
-Read the optional shared model sheet at $XDG_CONFIG_HOME/t3-pstack/models.md, or ~/.config/t3-pstack/models.md when unset. Use this plugin's models.json for missing role defaults, after live validation. Follow delegate completion instructions, never poll running children, and use PR tracking for authorized pending PR work. User instructions and runtime restrictions retain priority.
+Read the optional shared model sheet at $XDG_CONFIG_HOME/pstack/models.md, or ~/.config/pstack/models.md when unset. Use this plugin's models.json for missing role defaults, after live validation. Follow delegate completion instructions, never poll running children, and use PR tracking for authorized pending PR work. User instructions and runtime restrictions retain priority.
 </EXTREMELY_IMPORTANT>
+
+General investigation, architecture, prose, and reviews use GPT 6.1 Sol medium. Claude Opus 5.5 medium is reserved for the `ui design` role for visual composition, layout, typography, color, styling, and interaction presentation. Independent general reviewers run in separate GPT tasks; no cross-family panel is required. Execution workers remain unchanged.

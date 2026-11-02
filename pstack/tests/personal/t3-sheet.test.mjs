@@ -23,14 +23,15 @@ const ROLES = [
   { role: "judgment and prose", tier: "default", skill: "poteto-mode" },
   { role: "hardest tasks", tier: "default", skill: "poteto-mode", alias: "strongest judgment" },
   { role: "arena runners", tier: "panel", skill: "arena" },
+  { role: "ui design", tier: "ui-design", skill: "poteto-mode" },
 ];
 const DEFAULTS = {
-  default: "claudeAgent/claude-opus-5-5 effort=medium",
+  default: "codex/gpt-6.1-sol reasoningEffort=medium",
   worker: "opencode/opencode-go/muse-spark-1.3-contributor variant=xhigh",
   panel: [
-    "claudeAgent/claude-opus-5-5 effort=medium",
     "codex/gpt-6.1-sol reasoningEffort=medium",
   ],
+  "ui-design": "claudeAgent/claude-opus-5-5 effort=medium",
 };
 
 // Saved-snapshot-shaped catalog exercising every supported option form:
@@ -68,7 +69,15 @@ function testCatalog() {
         providerInstanceId: "codex", driverKind: "codex",
         canRunChildTask: true, canRunCrossProviderChildTask: true,
         models: [
-          { id: "gpt-6.1-sol", options: [{ id: "reasoningEffort", values: ["low", "medium", "high", "xhigh", "max"] }] },
+          {
+            id: "gpt-6.1-sol",
+            options: [
+              { id: "reasoningEffort", values: ["low", "medium", "high", "xhigh", "max"] },
+              { id: "fastMode", values: [false, true] },
+              { id: "legacy", options: [{ id: "a" }, { value: "b" }, "c"] },
+              { id: "flag", type: "boolean" },
+            ],
+          },
         ],
       },
       {
@@ -94,9 +103,10 @@ function testCatalog() {
 
 const VALID_SHEET = [
   "feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor variant=xhigh",
-  "judgment and prose: claudeAgent/claude-opus-5-5 effort=medium",
-  "hardest tasks: claudeAgent/claude-opus-5-5 effort=medium",
-  "arena runners: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium",
+  "judgment and prose: codex/gpt-6.1-sol reasoningEffort=medium",
+  "hardest tasks: codex/gpt-6.1-sol reasoningEffort=medium",
+  "arena runners: codex/gpt-6.1-sol reasoningEffort=medium",
+  "ui design: claudeAgent/claude-opus-5-5 effort=medium",
   "session hook: on",
 ].join("\n");
 
@@ -131,14 +141,14 @@ describe("sheet grammar", () => {
   });
 
   it("rejects duplicate roles, including via alias", () => {
-    const twice = check("judgment and prose: claudeAgent/claude-opus-5-5 effort=medium\njudgment and prose: claudeAgent/claude-opus-5-5 effort=medium");
+    const twice = check("judgment and prose: codex/gpt-6.1-sol reasoningEffort=medium\njudgment and prose: codex/gpt-6.1-sol reasoningEffort=medium");
     assert.match(twice.join("\n"), /appears twice/);
-    const aliased = check("hardest tasks: claudeAgent/claude-opus-5-5 effort=medium\nstrongest judgment: claudeAgent/claude-opus-5-5 effort=medium");
+    const aliased = check("hardest tasks: codex/gpt-6.1-sol reasoningEffort=medium\nstrongest judgment: codex/gpt-6.1-sol reasoningEffort=medium");
     assert.match(aliased.join("\n"), /appears twice/);
   });
 
   it("accepts the strongest judgment alias for the hardest tasks role", () => {
-    assert.deepEqual(check("strongest judgment: claudeAgent/claude-opus-5-5 effort=medium"), []);
+    assert.deepEqual(check("strongest judgment: codex/gpt-6.1-sol reasoningEffort=medium"), []);
   });
 
   it("controls the session hook with on/off and rejects other values", () => {
@@ -149,11 +159,11 @@ describe("sheet grammar", () => {
 
   it("rejects comma lists on non-panel roles and duplicate panel targets", () => {
     assert.match(
-      check("judgment and prose: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium").join("\n"),
+      check("judgment and prose: codex/gpt-6.1-sol reasoningEffort=medium, codex/gpt-6.1-sol reasoningEffort=high").join("\n"),
       /one entry, not a list/,
     );
     assert.match(
-      check("arena runners: claudeAgent/claude-opus-5-5 effort=medium, claudeAgent/claude-opus-5-5 effort=medium").join("\n"),
+      check("arena runners: codex/gpt-6.1-sol reasoningEffort=medium, codex/gpt-6.1-sol reasoningEffort=medium").join("\n"),
       /same target twice/,
     );
   });
@@ -161,68 +171,95 @@ describe("sheet grammar", () => {
 
 describe("catalog option shapes", () => {
   const coord = (entry) => check(`judgment and prose: ${entry}`);
+  const uiCoord = (entry) => check(`ui design: ${entry}`);
 
   it("accepts supported values and boolean-typed options", () => {
-    assert.deepEqual(coord("claudeAgent/claude-opus-5-5 effort=high"), []);
-    assert.deepEqual(coord("claudeAgent/claude-opus-5-5 effort=medium flag=true"), []);
+    assert.deepEqual(coord("codex/gpt-6.1-sol reasoningEffort=high"), []);
+    assert.deepEqual(coord("codex/gpt-6.1-sol reasoningEffort=medium flag=true"), []);
+    assert.deepEqual(uiCoord("claudeAgent/claude-opus-5-5 effort=high"), []);
+    assert.deepEqual(uiCoord("claudeAgent/claude-opus-5-5 effort=medium flag=true"), []);
   });
 
   it("accepts legacy options shapes and scalar booleans as booleans", () => {
-    const entry = parseEntry("claudeAgent/claude-opus-5-5 fastMode=true");
+    const entry = parseEntry("codex/gpt-6.1-sol fastMode=true");
     assert.equal(entry.options.fastMode, true);
-    assert.deepEqual(coord("claudeAgent/claude-opus-5-5 effort=medium fastMode=true"), []);
-    assert.deepEqual(coord("claudeAgent/claude-opus-5-5 effort=medium legacy=a"), []);
-    assert.deepEqual(coord("claudeAgent/claude-opus-5-5 effort=medium legacy=b"), []);
-    assert.deepEqual(coord("claudeAgent/claude-opus-5-5 effort=medium legacy=c"), []);
+    assert.deepEqual(coord("codex/gpt-6.1-sol reasoningEffort=medium fastMode=true"), []);
+    assert.deepEqual(coord("codex/gpt-6.1-sol reasoningEffort=medium legacy=a"), []);
+    assert.deepEqual(coord("codex/gpt-6.1-sol reasoningEffort=medium legacy=b"), []);
+    assert.deepEqual(coord("codex/gpt-6.1-sol reasoningEffort=medium legacy=c"), []);
   });
 
   it("rejects unknown options, unsupported values, and bad booleans", () => {
-    assert.match(coord("claudeAgent/claude-opus-5-5 nope=1").join("\n"), /no option/);
-    assert.match(coord("claudeAgent/claude-opus-5-5 effort=ultra").join("\n"), /not one of/);
-    assert.match(coord("claudeAgent/claude-opus-5-5 effort=medium fastMode=yes").join("\n"), /not one of/);
-    assert.match(coord("claudeAgent/claude-opus-5-5 effort=medium legacy=z").join("\n"), /not one of/);
+    assert.match(coord("codex/gpt-6.1-sol nope=1").join("\n"), /no option/);
+    assert.match(coord("codex/gpt-6.1-sol reasoningEffort=ultra").join("\n"), /not one of/);
+    assert.match(coord("codex/gpt-6.1-sol reasoningEffort=medium fastMode=yes").join("\n"), /not one of/);
+    assert.match(coord("codex/gpt-6.1-sol reasoningEffort=medium legacy=z").join("\n"), /not one of/);
   });
 
   it("fails missing providers, models, and providers that cannot run tasks", () => {
-    assert.match(coord("missing/opus effort=medium").join("\n"), /no provider instance/);
-    assert.match(coord("claudeAgent/nope-9 effort=medium").join("\n"), /does not list model/);
-    assert.match(coord("cursor/default effort=medium").join("\n"), /cannot run child tasks/);
+    assert.match(coord("missing/gpt-6.1-sol reasoningEffort=medium").join("\n"), /no provider instance/);
+    assert.match(coord("codex/nope-9 reasoningEffort=medium").join("\n"), /does not list model/);
+    assert.match(coord("cursor/default reasoningEffort=medium").join("\n"), /cannot run child tasks/);
     assert.match(check("judgment and prose: pi/default").join("\n"), /cannot run child tasks/);
   });
 });
 
 describe("role policy", () => {
   it("keeps the coordinator budget small instead of forcing maximum reasoning", () => {
-    assert.deepEqual(check("judgment and prose: claudeAgent/claude-opus-5-5 effort=medium"), []);
-    assert.deepEqual(check("judgment and prose: auto"), []);
+    assert.deepEqual(check("judgment and prose: codex/gpt-6.1-sol reasoningEffort=medium"), []);
+    assert.deepEqual(check("ui design: claudeAgent/claude-opus-5-5 effort=medium"), []);
   });
 
-  it("rejects Grok and other non-Claude/GPT coordinator families", () => {
+  it("rejects inherit aliases on coordinator roles; explicit targets enforce routing", () => {
+    for (const entry of ["inherit-parent", "auto"]) {
+      assert.match(check(`judgment and prose: ${entry}`).join("\n"), /rejected.*explicit target/);
+      assert.match(check(`arena runners: ${entry}`).join("\n"), /rejected.*explicit target|one or more explicit GPT/);
+      assert.match(check(`ui design: ${entry}`).join("\n"), /rejected.*explicit target/);
+    }
+    assert.match(
+      check("arena runners: auto, codex/gpt-6.1-sol reasoningEffort=medium").join("\n"),
+      /rejected.*explicit target/,
+    );
+  });
+
+  it("reserves Claude for UI visual design and GPT for general roles", () => {
+    assert.match(check("judgment and prose: claudeAgent/claude-opus-5-5 effort=medium").join("\n"), /GPT family only.*not "claude"/);
+    assert.match(check("ui design: codex/gpt-6.1-sol reasoningEffort=medium").join("\n"), /Claude family only.*not "gpt"/);
+    assert.match(check("ui design: grok/grok-4.7 reasoningEffort=high").join("\n"), /Claude family only.*not "grok"/);
+  });
+
+  it("rejects Grok and other non-GPT families on general roles", () => {
     assert.match(check("judgment and prose: grok/grok-4.7 reasoningEffort=high").join("\n"), /not "grok"/);
     assert.match(
-      check("arena runners: claudeAgent/claude-opus-5-5 effort=medium, grok/grok-4.7 reasoningEffort=high").join("\n"),
-      /two distinct Claude\/GPT/,
+      check("arena runners: grok/grok-4.7 reasoningEffort=high").join("\n"),
+      /GPT family only.*not "grok"|GPT targets only/,
     );
   });
 
-  it("requires two distinct Claude/GPT families on panels, with no execution target", () => {
-    assert.match(
-      check("arena runners: claudeAgent/claude-opus-5-5 effort=medium").join("\n"),
-      /two distinct Claude\/GPT/,
-    );
-    assert.match(
-      check("arena runners: claudeAgent/claude-opus-5-5 effort=medium, opencode/opencode-go/beam-free variant=max").join("\n"),
-      /execution targets stay on worker roles|two distinct Claude\/GPT/,
-    );
+  it("accepts GPT-only panels as independent reviews with no cross-family requirement", () => {
+    assert.deepEqual(check("arena runners: codex/gpt-6.1-sol reasoningEffort=medium"), []);
     assert.deepEqual(
-      check("arena runners: auto, claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium"),
+      check("arena runners: codex/gpt-6.1-sol reasoningEffort=medium, codex/gpt-6.1-sol reasoningEffort=high"),
       [],
     );
+    assert.match(
+      check("arena runners: claudeAgent/claude-opus-5-5 effort=medium").join("\n"),
+      /GPT family only/,
+    );
+    assert.match(
+      check("arena runners: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium").join("\n"),
+      /GPT family only|GPT targets only/,
+    );
+    assert.match(
+      check("arena runners: codex/gpt-6.1-sol reasoningEffort=medium, opencode/opencode-go/beam-free variant=max").join("\n"),
+      /execution targets stay on worker roles|GPT targets only/,
+    );
+    assert.match(check("arena runners: auto").join("\n"), /rejected|one or more explicit GPT/);
   });
 
   it("rejects inherit aliases and Claude/GPT targets on execution roles", () => {
     for (const entry of ["inherit-parent", "auto"]) {
-      assert.match(check(`feature, refactoring: ${entry}`).join("\n"), /coordinator roles only/);
+      assert.match(check(`feature, refactoring: ${entry}`).join("\n"), /rejected.*explicitly/);
     }
     assert.match(check("feature, refactoring: claudeAgent/claude-opus-5-5 effort=medium").join("\n"), /opencode driver/);
     assert.match(check("feature, refactoring: codex/gpt-6.1-sol reasoningEffort=medium").join("\n"), /opencode driver/);
@@ -366,6 +403,9 @@ describe("role policy", () => {
     assert.match(check("feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor variant=low", noCatalog).join("\n"), /configured Muse Spark 1\.3 maximum/);
     assert.match(check("feature, refactoring: opencode/some-random-model variant=max", noCatalog).join("\n"), /not an allowed execution model/);
     assert.match(check("judgment and prose: grok/grok-4.7 reasoningEffort=high", noCatalog).join("\n"), /excluded/);
+    assert.match(check("judgment and prose: claudeAgent/claude-opus-5-5 effort=medium", noCatalog).join("\n"), /GPT family only/);
+    assert.match(check("ui design: codex/gpt-6.1-sol reasoningEffort=medium", noCatalog).join("\n"), /Claude family only/);
+    assert.match(check("judgment and prose: auto", noCatalog).join("\n"), /rejected/);
     assert.match(check("mystery: auto", noCatalog).join("\n"), /not a pstack role/);
   });
 });
@@ -387,7 +427,7 @@ describe("family helpers", () => {
 
 describe("real models.json vocabulary", () => {
   it("has tiers with role/tier/skill entries and optional aliases", () => {
-    assert.ok(REAL_MODELS.tiers.default && REAL_MODELS.tiers.worker && REAL_MODELS.tiers.panel);
+    assert.ok(REAL_MODELS.tiers.default && REAL_MODELS.tiers.worker && REAL_MODELS.tiers.panel && REAL_MODELS.tiers["ui-design"]);
     for (const role of REAL_MODELS.roles) {
       assert.equal(typeof role.role, "string");
       assert.equal(typeof role.tier, "string");
@@ -404,18 +444,19 @@ describe("real models.json vocabulary", () => {
     const workerRoles = new Set(REAL_MODELS.roles.filter((r) => r.tier === "worker").map((r) => r.role));
     assert.equal(workerRoles.size, 5);
     const lines = [
-      "judgment and prose: claudeAgent/claude-opus-5-5 effort=medium",
-      "hardest tasks: claudeAgent/claude-opus-5-5 effort=medium",
-      "how explorer: claudeAgent/claude-opus-5-5 effort=medium",
-      "how explainer: claudeAgent/claude-opus-5-5 effort=medium",
-      "why investigators: claudeAgent/claude-opus-5-5 effort=medium",
-      "why synthesizer: claudeAgent/claude-opus-5-5 effort=medium",
-      "reflect tooling: claudeAgent/claude-opus-5-5 effort=medium",
-      "reflect judgment, divergent, synthesizer: claudeAgent/claude-opus-5-5 effort=medium",
-      "arena runners: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium",
-      "arena cross-judge pool: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium",
-      "architect runners: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium",
-      "interrogate reviewers: claudeAgent/claude-opus-5-5 effort=medium, codex/gpt-6.1-sol reasoningEffort=medium",
+      "judgment and prose: codex/gpt-6.1-sol reasoningEffort=medium",
+      "hardest tasks: codex/gpt-6.1-sol reasoningEffort=medium",
+      "how explorer: codex/gpt-6.1-sol reasoningEffort=medium",
+      "how explainer: codex/gpt-6.1-sol reasoningEffort=medium",
+      "why investigators: codex/gpt-6.1-sol reasoningEffort=medium",
+      "why synthesizer: codex/gpt-6.1-sol reasoningEffort=medium",
+      "reflect tooling: codex/gpt-6.1-sol reasoningEffort=medium",
+      "reflect judgment, divergent, synthesizer: codex/gpt-6.1-sol reasoningEffort=medium",
+      "arena runners: codex/gpt-6.1-sol reasoningEffort=medium",
+      "arena cross-judge pool: codex/gpt-6.1-sol reasoningEffort=medium",
+      "architect runners: codex/gpt-6.1-sol reasoningEffort=medium",
+      "interrogate reviewers: codex/gpt-6.1-sol reasoningEffort=medium",
+      "ui design: claudeAgent/claude-opus-5-5 effort=medium",
       "session hook: on",
     ].join("\n");
     const omitted = checkSheet(parseSheet(lines), {

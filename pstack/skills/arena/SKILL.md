@@ -16,7 +16,7 @@ Every candidate gets the same prompt, so the prompt is the contract.
 
 1. State the artifact each candidate is producing.
 2. Derive the rubric, 3-6 concrete gradeable criteria for what success looks like on *this* task. It is the picker's tool in Phase D. Candidates only see the task.
-3. Pick inspect-only Claude and GPT design perspectives from `arena runners` in the shared model sheet. Confirm live targets at the coordinator budget. A design child returns a design and rationale; it never implements or creates children. For code candidates, the main coordinator approves separate implementation specifications and dispatches them to execution workers. A missing required independent perspective blocks its gate.
+3. Pick inspect-only GPT general design perspectives from `arena runners` in the shared model sheet. Route UI visual design perspectives through `ui design` under the execution policy. Confirm live targets at the coordinator budget. A design child returns a design and rationale; it never implements or creates children. For code candidates, the main coordinator approves separate implementation specifications and dispatches them to execution workers. A missing required independent perspective blocks its gate.
 4. Give each candidate its own output location (a git worktree where possible, otherwise `/tmp/arena-<slug>/candidate-<n>/`), per the **separate-before-serializing-shared-state** principle skill.
 
 ## Phase B: Fan out
@@ -27,7 +27,7 @@ If a candidate produces no output, proceed with N-1 and note the dropout.
 
 ## Phase C: Cross-judge
 
-After the candidates complete, choose an inspect-only Claude or GPT judge from `arena cross-judge pool`, using a different family from the main coordinator. It reads the rubric and candidate artifacts and returns scores and a recommendation. It neither edits nor runs commands. Runtime questions become requests to the main coordinator for worker execution. A missing required independent judge blocks its gate.
+After the candidates complete, choose an inspect-only GPT judge from `arena cross-judge pool` in a separate task from the main coordinator. A different model family is not required. It reads the rubric and candidate artifacts and returns scores and a recommendation. It neither edits nor runs commands. Runtime questions become requests to the main coordinator for worker execution. A missing required independent judge blocks its gate.
 
 ## Phase D: Pick a base
 

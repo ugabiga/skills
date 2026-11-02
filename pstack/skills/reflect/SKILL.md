@@ -30,9 +30,9 @@ Read reviewer and synthesizer roles from the shared model sheet. Confirm Claude 
 
 | Lens | Role line | Default `model` | Prompt template |
 |---|---|---|---|
-| Judgment | `reflect judgment, divergent, synthesizer` | `claudeAgent/claude-opus-5-5 effort=medium` | `references/judgment-reviewer.md` |
+| Judgment | `reflect judgment, divergent, synthesizer` | `codex/gpt-6.1-sol reasoningEffort=medium` | `references/judgment-reviewer.md` |
 | Tooling | `reflect tooling` | `codex/gpt-6.1-sol reasoningEffort=medium` | `references/tooling-reviewer.md` |
-| Divergent | `reflect judgment, divergent, synthesizer` | `claudeAgent/claude-opus-5-5 effort=medium` | `references/divergent-reviewer.md` |
+| Divergent | `reflect judgment, divergent, synthesizer` | `codex/gpt-6.1-sol reasoningEffort=medium` | `references/divergent-reviewer.md` |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in the `delegate_task` response body.
 

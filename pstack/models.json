@@ -1,11 +1,11 @@
 {
   "tiers": {
-    "default": "claudeAgent/claude-opus-5-5 effort=medium",
+    "default": "codex/gpt-6.1-sol reasoningEffort=medium",
     "worker": "opencode/opencode-go/muse-spark-1.3-contributor variant=xhigh",
     "panel": [
-      "claudeAgent/claude-opus-5-5 effort=medium",
       "codex/gpt-6.1-sol reasoningEffort=medium"
-    ]
+    ],
+    "ui-design": "claudeAgent/claude-opus-5-5 effort=medium"
   },
   "roles": [
     {
@@ -93,6 +93,11 @@
       "role": "interrogate reviewers",
       "tier": "panel",
       "skill": "interrogate"
+    },
+    {
+      "role": "ui design",
+      "tier": "ui-design",
+      "skill": "poteto-mode"
     }
   ]
 }

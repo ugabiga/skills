@@ -11,7 +11,7 @@
 
 원본의 워크플로와 원칙을 유지하고, 스킬 진입점에서 개인 실행 정책을 먼저 읽는다. TW를 별도로 설치하지 않아도 정책을 읽을 수 있다. 실행 transport는 T3이므로 T3 도구가 없는 환경에서는 실행 위임이 차단된다. Cursor 자체에서 그대로 실행할 수 있는 범용 변환본은 아니다.
 
-모델 우선순위는 2026-10-31 TW의 스냅샷이다. 기존 Butter 자동 갱신과 연결하지 않았다. 관리형 fallback 변경은 이 저장소에서 검토하고 커밋한다. 기존 `~/.config/t3-pstack/models.md`는 선택적으로 읽으며, 해당 파일이나 설치된 plugin cache를 변경하지 않는다.
+모델 우선순위는 2026-10-31 TW의 스냅샷이다. 기존 Butter 자동 갱신과 연결하지 않았다. 관리형 fallback 변경은 이 저장소에서 검토하고 커밋한다. 기존 `~/.config/pstack/models.md`는 선택적으로 읽으며, 해당 파일이나 설치된 plugin cache를 변경하지 않는다.
 
 ## 원본 업데이트
 
@@ -59,6 +59,6 @@ claude plugin marketplace add /Users/sanghwa/Developer/Github/skills
 claude plugin install pstack@skills
 ```
 
-설치는 host가 관리하는 cache에 복사된다. 브랜치 push만으로 설치본이 바뀌지는 않는다. 변경 검증 후 marketplace와 plugin을 갱신하고 새 세션에서 적용 상태를 확인한다. 기존 `t3-pstack@t3-pstack`은 새 설치본을 확인한 뒤 비활성화해 중복 안내를 막는다. 이전 cache나 모델 표를 직접 덮어쓰지 않는다.
+설치는 host가 관리하는 cache에 복사된다. 브랜치 push만으로 설치본이 바뀌지는 않는다. 변경 검증 후 marketplace와 plugin을 갱신하고 새 세션에서 적용 상태를 확인한다. 활성 설치 대상은 `pstack@skills` 하나이며, 모델 표는 `~/.config/pstack/models.md`로 통일한다. 이전 cache나 모델 표를 직접 덮어쓰지 않는다.
 
 새 세션에서는 `pstack:poteto-mode`를 사용한다. 원본 관리본을 T3 실행 환경에 맞게 조정한 개인 plugin이며, T3 도구가 없는 환경에서는 실행 위임이 차단된다.

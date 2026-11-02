@@ -27,7 +27,7 @@ Infer the need from the message and the conversation. A named situation, such as
 
 Check the state that changes the answer, and mention it only when it does:
 
-- No `~/.config/t3-pstack/models.md` means `/setup-pstack` hasn't run for this user, so every role uses its default model.
+- No `~/.config/pstack/models.md` means `/setup-pstack` hasn't run for this user, so every role uses its default model.
 - No `verify-*` skill or other app harness in the project means agents have no scripted way to drive the app. Mention `/create-verification-skill` when the question is about proving a change works.
 - No formal verification skill in the project means no property is checked past what tests reach. Mention `/create-formal-verification-skill` when the question is about a race, an invariant, or another case tests rarely hit. When one exists and the code it covers changed after the commit it records as last in sync, mention `/maintain-formal-verification-skill` if the question touches that code.
 
@@ -38,7 +38,7 @@ When the model rule is missing and it matters, ask whether the user wants to pic
 
 ## Get set up
 
-This is Cursor original pstack with integrated personal TW and T3 execution rules. Use the personal skills marketplace and pstack package, not the old t3-pstack install. Follow [personal maintenance](https://github.com/ugabiga/skills/blob/main/PERSONAL.md) for host installation and updating the fork. The plugin name is pstack and the marketplace name is skills.
+This is Cursor original pstack with integrated personal TW and T3 execution rules. Use the personal `skills` marketplace and `pstack` package. Follow [personal maintenance](https://github.com/ugabiga/skills/blob/main/PERSONAL.md) for host installation and updating the fork. The plugin name is pstack and the marketplace name is skills.
 
 Run setup-pstack to validate coordinator model choices against the live T3 catalog. Coding, tests, and device actions retain the execution-policy model routing and maximum reasoning. Browser and computer work is Antigravity-first. The policy is bundled; a separately installed TW skill is not required.
 

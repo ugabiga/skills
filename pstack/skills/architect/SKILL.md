@@ -30,7 +30,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt.
 
-Read `architect runners` from the shared model sheet. Use inspect-only Claude and GPT design perspectives through T3. The main coordinator approves the synthesized sketch and dispatches implementation and validation to execution workers. A missing required independent family blocks design approval.
+Read `architect runners` from the shared model sheet. Use inspect-only GPT architecture perspectives through T3. For UI visual design, use the dedicated `ui design` role under the execution policy. The main coordinator approves the synthesized sketch and dispatches implementation and validation to execution workers. A missing required independent task blocks design approval; a different model family is not required.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient. This is the **exhaust-the-design-space** principle skill made concrete. Whole-shape alternatives, not point fixes inside one shape.
 

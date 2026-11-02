@@ -7,7 +7,7 @@ Read the integrated [personal execution policy](../poteto-mode/references/execut
 
 # Setup pstack
 
-Configure coordinator perspectives without changing execution-worker permissions or reasoning. This personal version writes `$XDG_CONFIG_HOME/t3-pstack/models.md`, or `~/.config/t3-pstack/models.md` when XDG_CONFIG_HOME is unset. It does not write Cursor model slugs or require a separately installed TW skill.
+Configure coordinator perspectives without changing execution-worker permissions or reasoning. This personal version writes `$XDG_CONFIG_HOME/pstack/models.md`, or `~/.config/pstack/models.md` when XDG_CONFIG_HOME is unset. It does not write Cursor model slugs or require a separately installed TW skill.
 
 ## Detect and load
 
@@ -19,11 +19,11 @@ Read the existing sheet if present. Preserve unrelated settings and valid explic
 
 Use `<providerInstanceId>/<modelId> <optionId>=<value>` entries. Split at the first slash. Validate each ID and option against the live catalog.
 
-Claude and GPT own judgment, prose, investigation, design, and review roles. Preserve the existing role labels used by bundled skills. For new coordinator entries, prefer the live Claude Opus 5.5 and GPT 6.1 Sol IDs only when confirmed available. Arena runners, architect runners, interrogate reviewers, and cross-judge pools contain Claude and GPT perspectives only. Preserve any required independent family. Do not silently reduce a required panel when a family is missing.
+Use GPT 6.1 Sol with `reasoningEffort=medium` for general judgment, prose, investigation, architecture, and review roles. Preserve existing role labels. Use Claude Opus 5.5 with `effort=medium` only for the dedicated `ui design` role and its visual design scope in the execution policy. General arena, architect, interrogate, and cross-judge pools contain GPT targets only. Independent review means a separate task, not a different family. Confirm every target in the live catalog.
 
 The feature, refactoring, bug-fix, perf-issue, hillclimb, and swarm-worker execution entries follow the execution policy's ordered OpenCode choices. The hardest-tasks role selects a design perspective, not permission for a Claude or GPT child to implement. Browser and computer actions follow the Antigravity-first policy. Worker reasoning stays at the model's supported maximum for every budget. Never add Grok or an inherited-parent execution fallback.
 
-An alias such as `auto` or `inherit-parent` can apply only to a coordinator role whose inherited family is Claude or GPT. Panelists return execution requests to the main coordinator rather than creating children.
+Use explicit model targets so inherited Claude sessions cannot select Claude for general roles. Panelists return execution requests to the main coordinator rather than creating children.
 
 ## Write and report
 

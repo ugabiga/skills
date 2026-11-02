@@ -13,13 +13,9 @@ else
 fi
 reader=$plugin_root/skills/setup-pstack/scripts/read-sheet.sh
 
-# Each runtime's hooks file passes its own name.
+# Each runtime's hooks file passes its own name. Both hosts share one sheet.
 case "${1:-}" in
-  claude)
-    home_sheet="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/t3-pstack-models.md"
-    ;;
-  codex)
-    home_sheet="${CODEX_HOME:-$HOME/.codex}/t3-pstack-models.md"
+  claude|codex)
     ;;
   *)
     echo "session-start.sh: unknown runtime '${1:-}' (expected claude or codex)" >&2
@@ -27,10 +23,8 @@ case "${1:-}" in
     ;;
 esac
 
-# One sheet per machine. Until the installer moves an older home's sheet
-# there, that home's sheet still counts.
-sheet="${XDG_CONFIG_HOME:-$HOME/.config}/t3-pstack/models.md"
-[ -f "$sheet" ] || sheet=$home_sheet
+# Single shared sheet. No per-host fallback.
+sheet="${XDG_CONFIG_HOME:-$HOME/.config}/pstack/models.md"
 
 # A sheet that cannot be decoded counts as missing, so injection stays on.
 if ! { [ -f "$sheet" ] && [ -r "$sheet" ] && normalized=$(sh "$reader" "$sheet"); }; then

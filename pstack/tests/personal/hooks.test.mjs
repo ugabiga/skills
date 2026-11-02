@@ -22,12 +22,11 @@ function layout() {
   return { root, home, xdg };
 }
 
-function runHook(host, { xdgSheet, legacySheet, hostHome, pluginRoot = PKG, extraEnv = {} } = {}) {
+function runHook(host, { xdgSheet, pluginRoot = PKG, extraEnv = {} } = {}) {
   const { home, xdg } = layout();
   if (xdgSheet !== undefined) {
-    mkdirSync(path.join(xdg, "t3-pstack"), { recursive: true });
-    if (typeof xdgSheet === "string") writeFileSync(path.join(xdg, "t3-pstack", "models.md"), xdgSheet);
-    else writeFileSync(path.join(xdg, "t3-pstack", "models.md"), xdgSheet);
+    mkdirSync(path.join(xdg, "pstack"), { recursive: true });
+    writeFileSync(path.join(xdg, "pstack", "models.md"), xdgSheet);
   }
   const env = {
     ...process.env,
@@ -38,10 +37,6 @@ function runHook(host, { xdgSheet, legacySheet, hostHome, pluginRoot = PKG, extr
     CODEX_HOME: path.join(home, ".codex"),
     ...extraEnv,
   };
-  if (legacySheet !== undefined && hostHome) {
-    mkdirSync(hostHome(home), { recursive: true });
-    writeFileSync(path.join(hostHome(home), "t3-pstack-models.md"), legacySheet);
-  }
   try {
     const stdout = execFileSync("sh", [HOOK, host], { encoding: "utf8", env });
     return { exit: 0, stdout };
@@ -50,8 +45,22 @@ function runHook(host, { xdgSheet, legacySheet, hostHome, pluginRoot = PKG, extr
   }
 }
 
-const claudeLegacy = (home) => path.join(home, ".claude");
-const codexLegacy = (home) => path.join(home, ".codex");
+function runHookInLayout(host, home, xdg, { pluginRoot = PKG } = {}) {
+  const env = {
+    ...process.env,
+    HOME: home,
+    XDG_CONFIG_HOME: xdg,
+    CLAUDE_PLUGIN_ROOT: pluginRoot,
+    CLAUDE_CONFIG_DIR: path.join(home, ".claude"),
+    CODEX_HOME: path.join(home, ".codex"),
+  };
+  try {
+    const stdout = execFileSync("sh", [HOOK, host], { encoding: "utf8", env });
+    return { exit: 0, stdout };
+  } catch (err) {
+    return { exit: err.status, stdout: err.stdout?.toString() ?? "" };
+  }
+}
 
 describe("session-start hook", () => {
   it("emits nothing when the sheet disables the session hook", () => {
@@ -69,17 +78,46 @@ describe("session-start hook", () => {
     assert.equal(missing.stdout, CONTEXT);
   });
 
-  it("falls back to the legacy per-host sheet", () => {
-    const claude = runHook("claude", { legacySheet: "session hook: off\n", hostHome: claudeLegacy });
-    assert.equal(claude.exit, 0);
-    assert.equal(claude.stdout, "");
-    // A Claude legacy sheet must not silence Codex.
-    const codex = runHook("codex", { legacySheet: "session hook: off\n", hostHome: claudeLegacy });
-    assert.equal(codex.exit, 0);
-    assert.equal(codex.stdout, CONTEXT);
-    const codexOff = runHook("codex", { legacySheet: "session hook: off\n", hostHome: codexLegacy });
-    assert.equal(codexOff.exit, 0);
-    assert.equal(codexOff.stdout, "");
+  it("ignores removed legacy sheets; only the canonical sheet controls the hook", () => {
+    // Historical literals for the removed locations. The hook itself reads
+    // only pstack/models.md; these files must never silence it.
+    const { home, xdg } = layout();
+    const legacyPaths = [
+      path.join(xdg, "t3-pstack", "models.md"),
+      path.join(home, ".claude", "t3-pstack-models.md"),
+      path.join(home, ".codex", "t3-pstack-models.md"),
+    ];
+    for (const legacy of legacyPaths) {
+      mkdirSync(path.dirname(legacy), { recursive: true });
+      writeFileSync(legacy, "session hook: off\n");
+    }
+    // Legacy off with no canonical sheet still emits guidance.
+    for (const host of ["claude", "codex"]) {
+      const res = runHookInLayout(host, home, xdg);
+      assert.equal(res.exit, 0);
+      assert.equal(res.stdout, CONTEXT, `${host}: legacy off must not silence the hook`);
+    }
+    // Canonical off silences even when legacy says on.
+    mkdirSync(path.join(xdg, "pstack"), { recursive: true });
+    writeFileSync(path.join(xdg, "pstack", "models.md"), "session hook: off\n");
+    for (const legacy of legacyPaths) {
+      writeFileSync(legacy, "session hook: on\n");
+    }
+    for (const host of ["claude", "codex"]) {
+      const res = runHookInLayout(host, home, xdg);
+      assert.equal(res.exit, 0);
+      assert.equal(res.stdout, "", `${host}: canonical off must silence the hook`);
+    }
+    // Canonical on emits even when legacy says off.
+    writeFileSync(path.join(xdg, "pstack", "models.md"), "session hook: on\n");
+    for (const legacy of legacyPaths) {
+      writeFileSync(legacy, "session hook: off\n");
+    }
+    for (const host of ["claude", "codex"]) {
+      const res = runHookInLayout(host, home, xdg);
+      assert.equal(res.exit, 0);
+      assert.equal(res.stdout, CONTEXT, `${host}: canonical on must emit guidance`);
+    }
   });
 
   it("handles BOM, CRLF, and UTF-16LE sheets", () => {
@@ -107,8 +145,8 @@ describe("session-start hook", () => {
 
   it("resolves the plugin root from the script location when the env var is missing", () => {
     const { home, xdg } = layout();
-    mkdirSync(path.join(xdg, "t3-pstack"), { recursive: true });
-    writeFileSync(path.join(xdg, "t3-pstack", "models.md"), "session hook: off\n");
+    mkdirSync(path.join(xdg, "pstack"), { recursive: true });
+    writeFileSync(path.join(xdg, "pstack", "models.md"), "session hook: off\n");
     const env = {
       ...process.env,
       HOME: home,
