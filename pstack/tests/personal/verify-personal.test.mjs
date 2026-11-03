@@ -232,4 +232,31 @@ describe("verify-personal guard", () => {
     assert.match(broken.output, /nope\.md/);
     assert.ok(!existsSync(path.join(repo, ".git", "index.lock")), "guard must not lock the repo");
   });
+
+  it("inherits new links to sparse-checkout excluded paths", { skip: !gitWorks() }, () => {
+    const { repo, pkg } = makeGoodFixture();
+    const env = { ...process.env, GIT_CONFIG_NOSYSTEM: "1", HOME: repo };
+    const git = (args) => execFileSync("git", ["-C", repo, "-c", "user.email=t@t", "-c", "user.name=t", ...args], { encoding: "utf8", env });
+    mkdirSync(path.join(repo, "third_party", "lark-base"), { recursive: true });
+    writeFileSync(path.join(repo, "third_party", "lark-base", "README.md"), "# lark base\n");
+    writeFileSync(path.join(repo, "README.md"), "# plugins\n");
+    git(["init", "-q"]);
+    git(["add", "-A"]);
+    git(["commit", "-qm", "baseline"]);
+    git(["tag", "personal/upstream-base"]);
+    git(["sparse-checkout", "init", "--cone"]);
+    git(["sparse-checkout", "set", "pstack", ".agents", ".claude-plugin"]);
+    assert.ok(!existsSync(path.join(repo, "third_party", "lark-base")));
+
+    const readme = path.join(repo, "README.md");
+    writeFileSync(readme, `${readFileSync(readme, "utf8")}See [lark base](third_party/lark-base/).\n`);
+    const excluded = runVerify(pkg);
+    assert.equal(excluded.exit, 0, excluded.output);
+    assert.match(excluded.output, /inherited: .*third_party\/lark-base/);
+
+    writeFileSync(readme, `${readFileSync(readme, "utf8")}See [missing](third_party/gone/).\n`);
+    const broken = runVerify(pkg);
+    assert.notEqual(broken.exit, 0);
+    assert.match(broken.output, /third_party\/gone/);
+  });
 });

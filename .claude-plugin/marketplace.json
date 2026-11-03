@@ -7,7 +7,7 @@
     {
       "name": "pstack",
       "source": "./pstack",
-      "version": "0.15.36-personal.3",
+      "version": "0.15.36-personal.4",
       "description": "Personal Cursor pstack with T3 and TW integration."
     }
   ],

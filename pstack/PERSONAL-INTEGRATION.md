@@ -32,3 +32,7 @@ The main coordinator reviewed files and diffs and accepted the tested fixes. Two
 General coordinator roles and panel pools now use GPT 6.1 Sol with medium reasoning. The dedicated `ui design` role uses Claude Opus 5.5 with medium effort for UI visual composition, layout, typography, color, styling, and interaction presentation. General UI-feature logic and code review remain GPT work. Independent general reviews use separate GPT tasks rather than different families. Execution models, fallback order, and worker reasoning maxima are unchanged.
 
 The shared model sheet remains the machine-wide role configuration. Maintain source defaults and routing instructions here, then keep the active Codex and Claude installations consistent. Butter and Factory use `pstack:poteto-mode`, matching the enabled `pstack@skills` plugin.
+
+## 2026-11-03 sparse-checkout link guard
+
+Upstream keeps adding `third_party` plugins, and the personal checkout uses sparse checkout without `third_party`. `verify-personal.mjs` now reports a new Markdown link whose target is tracked in `HEAD` but absent from the working tree under sparse checkout as inherited rather than as a problem, so each upstream plugin addition no longer fails the structural guard. Broken links that are not tracked in `HEAD` still fail. Version moves to `0.15.36-personal.4`.

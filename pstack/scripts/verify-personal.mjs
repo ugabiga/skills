@@ -174,6 +174,7 @@ class Guard {
     this.problems = [];
     this.warnings = [];
     this.inherited = [];
+    this.sparse = undefined;
   }
   fail(location, message) {
     this.problems.push(`${location}: ${message}`);
@@ -500,10 +501,33 @@ class Guard {
 
   checkLink(file, line, target, isNew, inFence) {
     if (inFence || isSkippableTarget(target)) return;
-    if (!existsSync(resolveTarget(target, path.dirname(file)))) {
-      const message = `link target "${target}" does not resolve`;
-      if (isNew) this.fail(`${file}:${line}`, message);
-      else this.inherit(`${file}:${line}`, message);
+    const resolved = resolveTarget(target, path.dirname(file));
+    if (existsSync(resolved)) return;
+    const message = `link target "${target}" does not resolve`;
+    // Sparse checkout deliberately keeps tracked paths out of the working
+    // tree, so an upstream link to them resolves in a full checkout. Report
+    // that as inherited instead of failing every upstream plugin addition.
+    if (!isNew || this.sparseExcluded(resolved)) this.inherit(`${file}:${line}`, message);
+    else this.fail(`${file}:${line}`, message);
+  }
+
+  // True when the target is tracked in HEAD but excluded by sparse checkout.
+  sparseExcluded(absTarget) {
+    if (this.sparse === undefined) {
+      try {
+        this.sparse = runGit(this.repo, ["config", "--bool", "core.sparseCheckout"]).trim() === "true";
+      } catch {
+        this.sparse = false;
+      }
+    }
+    if (!this.sparse) return false;
+    const rel = path.relative(this.repo, absTarget);
+    if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return false;
+    try {
+      runGit(this.repo, ["cat-file", "-e", `HEAD:${rel.split(path.sep).join("/")}`]);
+      return true;
+    } catch {
+      return false;
     }
   }
 }
