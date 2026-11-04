@@ -36,3 +36,7 @@ The shared model sheet remains the machine-wide role configuration. Maintain sou
 ## 2026-11-03 sparse-checkout link guard
 
 Upstream keeps adding `third_party` plugins, and the personal checkout uses sparse checkout without `third_party`. `verify-personal.mjs` now reports a new Markdown link whose target is tracked in `HEAD` but absent from the working tree under sparse checkout as inherited rather than as a problem, so each upstream plugin addition no longer fails the structural guard. Broken links that are not tracked in `HEAD` still fail. Version moves to `0.15.36-personal.4`.
+
+## 2026-11-04 model-invocable poteto-mode entry
+
+Project instructions in Butter and Factory tell agents to follow `pstack:poteto-mode` without the user typing the command. The upstream `disable-model-invocation: true` frontmatter hid the skill from the model, so agents reported it as blocked and skipped the workflow. `poteto-mode` now drops that flag so agents can enter it through the Skill tool. Bundled leaf skills keep the flag because poteto-mode reads them by relative path. Version moves to `0.15.36-personal.5`.
