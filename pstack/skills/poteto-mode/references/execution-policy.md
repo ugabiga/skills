@@ -14,7 +14,7 @@ The coordinator and Claude or GPT panelists do not code, execute tests, or manip
 
 The source is Cursor's original pstack. T3 is the selected execution transport for this personal customization. Translate original `Task` examples into `delegate_task` calls. Do not copy Cursor model slugs or `subagent_type` into T3 arguments. Use personas only within the permissions of the selected role. When the transport is unavailable, report the blocker. Do not substitute native subagents, Orca, Pi, a CLI model process, or a new top-level thread.
 
-Before the first delegation in a thread, call `orchestrator_capabilities`. Confirm app-owned child support, provider availability, cross-provider permissions, model IDs, and supported options in the live catalog. Refresh after a catalog error or a user-named provider change. Runtime and tool restrictions take precedence over examples here.
+Before the first delegation in a thread, call `orchestrator_capabilities`. Confirm app-owned child support, provider availability, cross-provider permissions, model IDs, and supported options in the live catalog. Reuse that result for every later dispatch in the thread. Refresh only after a catalog error or a user-named provider change. Runtime and tool restrictions take precedence over examples here.
 
 Use the provider instance whose driver matches the table. The provider instance ID must come from the catalog.
 
@@ -61,6 +61,16 @@ Completion of a small local task does not require opening a PR. When a PR is req
 
 Complete investigation and choose the implementation approach before dispatch. Independent write tasks must own disjoint files or modules. Use `isolation: "worktree"` only when a separate checkout is required and supported by the tool. Let T3 prepare it. Do not create child worktrees in the shell or in the prompt. For a shared checkout, name exact absolute owned paths and preserve all existing user changes.
 
+Delegate an investigation perspective only for scope the coordinator has not read. Give parallel investigators disjoint scopes. Do not delegate a question the coordinator has already answered with cited evidence.
+
+Mark each runtime fact the specification depends on as observed or assumed. Before implementation that depends on an assumed fact, dispatch an observation task. It runs only the commands the coordinator names and returns relevant output excerpts with exit codes, without interpretation or changes. Observation is execution, not investigation. The coordinator interprets the result and writes the implementation specification from it.
+
+Specify observable behavior, the input states the domain can produce, and acceptance checks. Name an internal mechanism only when the coordinator chose it for a stated reason. Do not enumerate states the domain cannot produce. Test scope follows that behavior contract.
+
+For release, deployment, signing, and other operational tasks, list known failure modes and the approved response to each. Pre-approve only reversible local responses. Actions on external accounts or stores need the user's prior approval for that action. The worker returns BLOCKED for a failure outside the list.
+
+A completion condition names the terminal state of every external process the task starts, such as a processed build number or a confirmed track release. A worker does not report DONE while such a process is still running.
+
 Every execution prompt contains the following fields with concrete values.
 
 ```text
@@ -72,15 +82,18 @@ Findings and implementation approach:
 Expected behavior:
 Validation criteria:
 Completion condition:
+Known failures and approved responses: operational tasks only, otherwise none.
 Dependencies and current state:
 Model: selected provider instance, model, and supported options. Do not switch models. Stop if exposed runtime metadata shows a mismatch.
 Non-goals: no investigation, design, scope expansion, reviews, approvals, worker direction, or children. Read only what is necessary to execute this specification. Preserve existing changes. Return BLOCKED for missing information or decisions.
-Completion report: DONE or BLOCKED, changed files or actions, validation commands and results, limitations, and available model evidence.
+Completion report: DONE or BLOCKED, changed files or actions, validation commands and results, limitations, spec concerns, and available model evidence.
 ```
+
+Under spec concerns, the worker names a requirement it believes is wrong or excessive, without changing scope. The coordinator decides each concern during review.
 
 Use `role: "implementation"` for implementation or actions and `role: "test"` for test-only tasks. Set `target.providerInstanceId`, `target.model`, and `target.options` from the confirmed choice. Use a unique `clientRequestId` per task round, retaining it only for a retry of the same request. Follow the tool's runtime permissions.
 
-Dispatch each independent wave asynchronously. Retain taskId, provider, model, requested options, round, and any child link. Follow the returned `next` instruction. Completion wakes the parent, so end the turn when instructed. Do not poll, sleep, or create watchers for running delegates. Use `task_cancel` for abandoned work. A replacement or a new review round gets a new `delegate_task`, never a continuation sent to the backing child thread.
+Dispatch each independent wave asynchronously, without the delegate tool's wait mode. Retain taskId, provider, model, requested options, round, and any child link. Follow the returned `next` instruction. Completion wakes the parent, so end the turn when instructed. Do not poll, sleep, or create watchers for running delegates. Use `task_cancel` for abandoned work. A replacement or a new review round gets a new `delegate_task`, never a continuation sent to the backing child thread.
 
 ## Verify and review the result
 
