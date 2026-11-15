@@ -26,11 +26,10 @@
 //   reviews (separate tasks, no cross-family requirement). An empty or
 //   alias-only panel is rejected, as is a duplicate target.
 // - Execution roles (worker tier) name exactly one of
-//   opencode-go/muse-spark-1.3-contributor, opencode-go/beam-free, or
-//   opencode-go/muse-spark-1.2-contributor on a provider instance whose
-//   catalog driverKind is opencode (instance names are not assumed), never
-//   `inherit-parent`/`auto` and never a Claude/GPT target, at that model's
-//   highest supported reasoning. Only recognized reasoning identifiers
+//   opencode-go/muse-spark-1.3-contributor on an opencode driver or
+//   gpt-6-luna on a codex driver (instance names are not assumed), never
+//   inherit-parent/auto and never another model, at that model's highest
+//   supported reasoning. Only recognized reasoning identifiers
 //   (variant, effort, reasoningEffort) are enforced. Strength ranks
 //   max > xhigh > high > medium > low > minimal. Without a catalog the
 //   exact IDs and options are validated but the provider driver is not
@@ -45,21 +44,29 @@ export const INHERIT = ["inherit-parent", "auto"];
 const HOOK_VALUES = ["on", "off"];
 const GPT_FAMILY = "gpt";
 const UI_FAMILY = "claude";
-const EXEC_DRIVER = "opencode";
 // Recognized reasoning option identifiers for execution models. Other
 // options (for example a speed preset with low/high values) are not
 // reasoning and are never forced to a maximum.
 // Reasoning strength, strongest first.
 const REASON_RANK = ["max", "xhigh", "high", "medium", "low", "minimal"];
 const REASON_IDS = new Set(["variant", "effort", "reasoningEffort"]);
-// Allowed execution models by exact model ID, with the expected
-// maximum reasoning option used when no live catalog is available.
-// The provider instance is validated by its catalog driverKind, never by
-// its instance name, so a renamed opencode-driver instance is accepted.
+// Allowed worker models by exact model ID. Each model owns its driver and
+// configured maximum; provider instance names are never used for routing.
 const EXEC_MODELS = new Map([
-  ["opencode-go/muse-spark-1.3-contributor", { label: "Muse Spark 1.3", maxOption: "variant", maxValue: "xhigh" }],
-  ["opencode-go/beam-free", { label: "Beam Free", maxOption: "variant", maxValue: "max" }],
-  ["opencode-go/muse-spark-1.2-contributor", { label: "Muse Spark 1.2", maxOption: "variant", maxValue: "xhigh" }],
+  ["opencode-go/muse-spark-1.3-contributor", {
+    label: "Muse Spark 1.3",
+    driver: "opencode",
+    maxOption: "variant",
+    maxValue: "xhigh",
+    workerOnly: true,
+  }],
+  ["gpt-6-luna", {
+    label: "GPT-6 Luna",
+    driver: "codex",
+    maxOption: "reasoningEffort",
+    maxValue: "max",
+    workerOnly: false,
+  }],
 ]);
 
 // Throws on a malformed entry; returns null for an inherit alias.
@@ -174,30 +181,30 @@ function checkTarget({ providerInstanceId, model, options }, catalog) {
 const execClass = (model) => EXEC_MODELS.get(model);
 
 // Role-policy problems for one concrete entry (inherit aliases never reach
-// here). Catalog dispatch is checked separately by checkTarget. With a
-// catalog the provider instance must list driverKind opencode; without a
-// catalog the exact model IDs and options are validated but the provider
-// driver cannot be proven.
+// here). Worker model eligibility is checked before that model's catalog
+// driver. Catalog dispatch is checked separately by checkTarget. Without a
+// catalog the exact model IDs and options are validated but the driver cannot
+// be proven.
 function checkRoleEntry(role, entry, catalog) {
   const at = `${entry.providerInstanceId}/${entry.model}`;
   if (role.tier === "worker") {
+    const cls = execClass(entry.model);
+    if (!cls) {
+      return [
+        at + ": not an allowed execution model (use opencode-go/muse-spark-1.3-contributor or gpt-6-luna)",
+      ];
+    }
     const problems = [];
     if (catalog) {
       const provider = findProvider(catalog, entry.providerInstanceId);
-      if (!provider || provider.driverKind !== EXEC_DRIVER) {
+      if (!provider || provider.driverKind !== cls.driver) {
         const got = provider?.driverKind ?? "missing";
         problems.push(
-          `${at}: execution needs a provider instance with the opencode driver, not "${entry.providerInstanceId}" with driver "${got}"`,
+          at + ": " + cls.label + " execution needs a provider instance with the " +
+            cls.driver + " driver, not \"" + entry.providerInstanceId + "\" with driver \"" + got + "\"",
         );
         return problems;
       }
-    }
-    const cls = execClass(entry.model);
-    if (!cls) {
-      problems.push(
-        `${at}: not an allowed execution model (use opencode-go/muse-spark-1.3-contributor, opencode-go/beam-free, or opencode-go/muse-spark-1.2-contributor)`,
-      );
-      return problems;
     }
     if (catalog) {
       const listed = findModel(findProvider(catalog, entry.providerInstanceId), entry.model);
@@ -222,8 +229,9 @@ function checkRoleEntry(role, entry, catalog) {
     }
     return problems;
   }
-  if (execClass(entry.model)) {
-    return [`${at}: coordinator roles use GPT or Claude perspectives; execution targets stay on worker roles`];
+  const cls = execClass(entry.model);
+  if (cls?.workerOnly) {
+    return [at + ": " + cls.label + " is reserved for worker roles"];
   }
   const fam = family(entry.model);
   if (role.tier === "ui-design") {
@@ -255,7 +263,7 @@ function checkRole(role, texts, catalog, label) {
   }
   if (entries.includes(null)) {
     if (role.tier === "worker") {
-      report("inherit-parent/auto is rejected; execution entries must name an OpenCode target explicitly");
+      report("inherit-parent/auto is rejected; execution entries must name an allowed worker target explicitly");
     } else {
       report("inherit-parent/auto is rejected; coordinator entries must name an explicit target so routing stays explicit");
     }

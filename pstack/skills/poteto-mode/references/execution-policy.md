@@ -8,7 +8,7 @@ The main coordinator owns requirements, read-only investigation, root-cause anal
 
 Execution workers only implement an approved specification, write and run its tests, or perform its specified browser, computer, or emulator actions. They do not investigate causes, design, expand scope, review or approve work, direct workers, or create children. They may read the files necessary to execute their specification. Missing information or a design decision returns BLOCKED to the coordinator.
 
-The coordinator and Claude or GPT panelists do not code, execute tests, or manipulate browsers, computers, or emulators. A panelist that needs runtime evidence returns a concrete execution request to the main coordinator. The main coordinator dispatches it and supplies the evidence back in a fresh review round. A request to reproduce, prototype, benchmark, or verify is still execution and goes to a worker. Skill and configuration management remain coordinator work.
+The coordinator and Claude or GPT panelists do not code, execute tests, or manipulate browsers, computers, or emulators. The explicitly selected Codex Luna fallback is an execution worker, not a panelist, and may perform only its approved execution specification. A panelist that needs runtime evidence returns a concrete execution request to the main coordinator. The main coordinator dispatches it and supplies the evidence back in a fresh review round. A request to reproduce, prototype, benchmark, or verify is still execution and goes to a worker. Skill and configuration management remain coordinator work.
 
 ## Use T3-owned tasks for execution
 
@@ -20,22 +20,22 @@ Use the provider instance whose driver matches the table. The provider instance 
 
 | Work | First choice | Fallback order |
 | --- | --- | --- |
-| Coding, tests, emulator actions | OpenCode `opencode-go/muse-spark-1.3-contributor`, `variant=xhigh` | OpenCode `opencode-go/beam-free`, `variant=max`, then `opencode-go/muse-spark-1.2-contributor`, `variant=xhigh` |
-| Browser and computer actions | Antigravity `gemini-3.8-flash-high`, options `{}` | The three OpenCode choices above in order |
+| Coding, tests, emulator actions | OpenCode `opencode-go/muse-spark-1.3-contributor`, `variant=xhigh` | Codex `gpt-6-luna`, `reasoningEffort=max` |
+| Browser and computer actions | Antigravity `gemini-3.8-flash-high`, options `{}` | OpenCode Muse Spark 1.3 above, then Codex Luna max above |
 | General investigation, architecture, prose, review | GPT 6.1 Sol, `reasoningEffort=medium`, from the model sheet | Report unavailable targets; do not substitute Claude |
 | UI visual design, layout, styling, interaction presentation | Claude Opus 5.5, `effort=medium`, from `ui design` | Report unavailable targets; do not substitute a general role |
 
-These execution fallbacks are the TW snapshot imported on 2026-10-31. This file owns the integrated defaults. They are not connected to Butter's TW auto-update job. Reconcile future changes explicitly in Git. Confirm availability at dispatch time. Do not infer availability from this table.
+The user updated these execution fallbacks on 2026-11-15: when OpenCode Go Muse Spark 1.3 is unavailable, use the Codex driver with `gpt-6-luna` and `reasoningEffort=max`, not OpenCode’s `opencode-go/gpt-6-luna`. Beam and Muse Spark 1.2 are no longer fallback candidates. This file owns the integrated defaults. They are not connected to Butter's TW auto-update job. Reconcile future changes explicitly in Git. Confirm availability at dispatch time. Do not infer availability from this table.
 
 Every execution worker uses its model's highest supported reasoning. Confirm the listed values in the live catalog. Never reduce execution reasoning for cost, routine work, or the coordinator budget. High is already part of the Antigravity model ID and takes no extra reasoning option. Never invent an option for a model that has none. Grok is excluded from all roles and fallbacks.
 
-Try the next execution candidate only for an unavailable provider or model, rate limits, quota, or service failure. An implementation failure or ambiguous requirement returns to the coordinator. Before replacing a possibly accepted task, cancel active work and confirm terminal state. Do not duplicate execution. If all allowed candidates fail, report BLOCKED. Never fall back to Claude, GPT, an inherited parent, or an unspecified target for execution.
+Try the next execution candidate only for an unavailable provider or model, rate limits, quota, or service failure. An implementation failure or ambiguous requirement returns to the coordinator. Before replacing a possibly accepted task, cancel active work and confirm terminal state. Do not duplicate execution. If all allowed candidates fail, report BLOCKED. The only GPT execution exception is the explicit Codex Luna max fallback above. Never fall back to Claude, another GPT model, an inherited parent, or an unspecified target for execution.
 
 ## Keep model settings subordinate to roles
 
 Read `$XDG_CONFIG_HOME/pstack/models.md`, or `~/.config/pstack/models.md` when XDG_CONFIG_HOME is unset. Existing configuration is optional. With no sheet, general coordinator roles and panel pools default to GPT 6.1 Sol with medium reasoning. Only the `ui design` role defaults to Claude Opus 5.5 with medium effort. Confirm IDs and options in the live catalog. Report an unavailable required target rather than switching families.
 
-A sheet entry has the form `<providerInstanceId>/<modelId> <optionId>=<value>`. Split at the first slash. Role values and panel lists select perspectives, but cannot give a Claude or GPT role execution rights. Legacy code-role entries that point to Claude or GPT do not override the execution table. General arena, architect, and interrogate panels use GPT only. Use separate tasks and perspectives for independent reviews; a different model family is not required. Route UI visual design perspectives through `ui design` instead of the general panel pool. Their implementation and runtime checks go through the main coordinator to execution workers.
+A sheet entry has the form `<providerInstanceId>/<modelId> <optionId>=<value>`. Split at the first slash. Role values and panel lists select perspectives, but cannot give a Claude or GPT perspective execution rights; Codex Luna max is allowed only as the explicitly selected execution worker. Legacy code-role entries do not override the execution table. General arena, architect, and interrogate panels use GPT only. Use separate tasks and perspectives for independent reviews; a different model family is not required. Route UI visual design perspectives through `ui design` instead of the general panel pool. Their implementation and runtime checks go through the main coordinator to execution workers.
 
 The selected coordinator budget is small, with medium reasoning. Keep pstack entry guidance enabled and announce the matched playbook once. Apply the budget to coordinator targets only. Use the nearest supported coordinator reasoning value when medium is unavailable and disclose it. Use explicit supported targets for every role. Do not use `auto` or `inherit-parent`, which could select the wrong family for the role. User-requested model changes remain subject to the role split unless the user explicitly changes that policy.
 

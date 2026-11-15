@@ -21,7 +21,7 @@ Use `<providerInstanceId>/<modelId> <optionId>=<value>` entries. Split at the fi
 
 Use GPT 6.1 Sol with `reasoningEffort=medium` for general judgment, prose, investigation, architecture, and review roles. Preserve existing role labels. Use Claude Opus 5.5 with `effort=medium` only for the dedicated `ui design` role and its visual design scope in the execution policy. General arena, architect, interrogate, and cross-judge pools contain GPT targets only. Independent review means a separate task, not a different family. Confirm every target in the live catalog.
 
-The feature, refactoring, bug-fix, perf-issue, hillclimb, and swarm-worker execution entries follow the execution policy's ordered OpenCode choices. The hardest-tasks role selects a design perspective, not permission for a Claude or GPT child to implement. Browser and computer actions follow the Antigravity-first policy. Worker reasoning stays at the model's supported maximum for every budget. Never add Grok or an inherited-parent execution fallback.
+The feature, refactoring, bug-fix, perf-issue, hillclimb, and swarm-worker execution entries follow the execution policy's ordered Muse Spark 1.3 → Codex Luna max choices. The hardest-tasks role selects a design perspective, not permission for a coordinator perspective to implement; only the explicit Codex Luna max fallback may execute as a GPT worker. Browser and computer actions follow the Antigravity-first policy. Worker reasoning stays at the model's supported maximum for every budget. Never add Grok or an inherited-parent execution fallback.
 
 Use explicit model targets so inherited Claude sessions cannot select Claude for general roles. Panelists return execution requests to the main coordinator rather than creating children.
 

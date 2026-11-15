@@ -47,6 +47,7 @@ function testCatalog() {
           { id: "opencode-go/muse-spark-1.3-contributor", options: [{ id: "variant", values: ["minimal", "low", "medium", "high", "xhigh"] }] },
           { id: "opencode-go/beam-free", options: [{ id: "variant", values: ["low", "medium", "high", "xhigh", "max"] }] },
           { id: "opencode-go/muse-spark-1.2-contributor", options: [{ id: "variant", values: ["low", "medium", "high", "xhigh"] }] },
+          { id: "opencode-go/gpt-6-luna", options: [{ id: "variant", values: ["none", "low", "medium", "high", "xhigh", "max"] }] },
           { id: "opencode/big-pickle" },
         ],
       },
@@ -76,6 +77,13 @@ function testCatalog() {
               { id: "fastMode", values: [false, true] },
               { id: "legacy", options: [{ id: "a" }, { value: "b" }, "c"] },
               { id: "flag", type: "boolean" },
+            ],
+          },
+          {
+            id: "gpt-6-luna",
+            options: [
+              { id: "reasoningEffort", values: ["low", "medium", "high", "xhigh", "max"] },
+              { id: "serviceTier", values: ["default", "priority"] },
             ],
           },
         ],
@@ -207,6 +215,8 @@ describe("catalog option shapes", () => {
 describe("role policy", () => {
   it("keeps the coordinator budget small instead of forcing maximum reasoning", () => {
     assert.deepEqual(check("judgment and prose: codex/gpt-6.1-sol reasoningEffort=medium"), []);
+    assert.deepEqual(check("judgment and prose: codex/gpt-6-luna reasoningEffort=medium"), []);
+    assert.deepEqual(check("arena runners: codex/gpt-6-luna reasoningEffort=medium"), []);
     assert.deepEqual(check("ui design: claudeAgent/claude-opus-5-5 effort=medium"), []);
   });
 
@@ -261,14 +271,14 @@ describe("role policy", () => {
     for (const entry of ["inherit-parent", "auto"]) {
       assert.match(check(`feature, refactoring: ${entry}`).join("\n"), /rejected.*explicitly/);
     }
-    assert.match(check("feature, refactoring: claudeAgent/claude-opus-5-5 effort=medium").join("\n"), /opencode driver/);
-    assert.match(check("feature, refactoring: codex/gpt-6.1-sol reasoningEffort=medium").join("\n"), /opencode driver/);
-    assert.match(check("feature, refactoring: grok/grok-4.7 reasoningEffort=high").join("\n"), /opencode driver/);
+    assert.match(check("feature, refactoring: claudeAgent/claude-opus-5-5 effort=medium").join("\n"), /not an allowed execution model/);
+    assert.match(check("feature, refactoring: codex/gpt-6.1-sol reasoningEffort=medium").join("\n"), /not an allowed execution model/);
+    assert.match(check("feature, refactoring: grok/grok-4.7 reasoningEffort=high").join("\n"), /not an allowed execution model/);
     assert.match(check("feature, refactoring: opencode/opencode/big-pickle").join("\n"), /not an allowed execution model/);
     assert.match(check("feature, refactoring: opencode/some-random-model variant=max").join("\n"), /not an allowed execution model/);
   });
 
-  it("accepts any opencode-driver instance and enforces exact execution IDs", () => {
+  it("accepts a renamed opencode-driver instance and enforces exact execution IDs", () => {
     const renamed = {
       providers: [
         {
@@ -346,12 +356,52 @@ describe("role policy", () => {
 
   it("requires the highest supported reasoning on execution entries", () => {
     assert.deepEqual(check("feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor variant=xhigh"), []);
-    assert.deepEqual(check("feature, refactoring: opencode/opencode-go/beam-free variant=max"), []);
-    assert.deepEqual(check("feature, refactoring: opencode/opencode-go/muse-spark-1.2-contributor variant=xhigh"), []);
-    assert.match(check("feature, refactoring: opencode/opencode-go/beam-free variant=low").join("\n"), /needs variant=max/);
-    assert.match(check("feature, refactoring: opencode/opencode-go/beam-free").join("\n"), /needs variant=max/);
     assert.match(check("feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor variant=medium").join("\n"), /needs variant=xhigh/);
     assert.match(check("feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor").join("\n"), /needs variant=xhigh/);
+    assert.deepEqual(check("feature, refactoring: codex/gpt-6-luna reasoningEffort=max"), []);
+    assert.match(check("feature, refactoring: codex/gpt-6-luna").join("\n"), /needs reasoningEffort=max/);
+    assert.match(check("feature, refactoring: codex/gpt-6-luna reasoningEffort=medium").join("\n"), /needs reasoningEffort=max/);
+  });
+
+  it("requires Luna max without a catalog and rejects removed or OpenCode Luna worker IDs", () => {
+    const noCatalog = { catalog: null };
+    assert.deepEqual(check("feature, refactoring: codex/gpt-6-luna reasoningEffort=max", noCatalog), []);
+    assert.match(check("feature, refactoring: codex/gpt-6-luna", noCatalog).join("\n"), /needs reasoningEffort=max/);
+    assert.match(check("feature, refactoring: codex/gpt-6-luna reasoningEffort=high", noCatalog).join("\n"), /needs reasoningEffort=max/);
+
+    for (const entry of [
+      "opencode/opencode-go/beam-free variant=max",
+      "opencode/opencode-go/muse-spark-1.2-contributor variant=xhigh",
+      "opencode/opencode-go/gpt-6-luna variant=max",
+    ]) {
+      assert.match(check("feature, refactoring: " + entry).join("\n"), /not an allowed execution model/);
+      assert.match(check("feature, refactoring: " + entry, noCatalog).join("\n"), /not an allowed execution model/);
+    }
+  });
+
+  it("requires Luna's codex driver and accepts renamed codex instances", () => {
+    const wrongDriver = testCatalog();
+    wrongDriver.providers.push({
+      providerInstanceId: "codex-via-opencode",
+      driverKind: "opencode",
+      canRunChildTask: true,
+      canRunCrossProviderChildTask: true,
+      models: [
+        { id: "gpt-6-luna", options: [{ id: "reasoningEffort", values: ["low", "medium", "high", "xhigh", "max"] }] },
+      ],
+    });
+    assert.match(
+      check("feature, refactoring: codex-via-opencode/gpt-6-luna reasoningEffort=max", { catalog: wrongDriver }).join("\n"),
+      /codex driver/,
+    );
+
+    const renamed = testCatalog();
+    const codex = renamed.providers.find((provider) => provider.providerInstanceId === "codex");
+    renamed.providers.push({ ...codex, providerInstanceId: "codex-local" });
+    assert.deepEqual(
+      check("feature, refactoring: codex-local/gpt-6-luna reasoningEffort=max", { catalog: renamed }),
+      [],
+    );
   });
 
   it("does not force non-reasoning options with low/high values", () => {
@@ -399,7 +449,7 @@ describe("role policy", () => {
   it("enforces known execution maxima without a catalog", () => {
     const noCatalog = { catalog: null };
     assert.deepEqual(check("feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor variant=xhigh", noCatalog), []);
-    assert.deepEqual(check("feature, refactoring: opencode/opencode-go/beam-free variant=max", noCatalog), []);
+    assert.deepEqual(check("feature, refactoring: codex/gpt-6-luna reasoningEffort=max", noCatalog), []);
     assert.match(check("feature, refactoring: opencode/opencode-go/muse-spark-1.3-contributor variant=low", noCatalog).join("\n"), /configured Muse Spark 1\.3 maximum/);
     assert.match(check("feature, refactoring: opencode/some-random-model variant=max", noCatalog).join("\n"), /not an allowed execution model/);
     assert.match(check("judgment and prose: grok/grok-4.7 reasoningEffort=high", noCatalog).join("\n"), /excluded/);
@@ -499,7 +549,7 @@ describe("checker CLI", () => {
     writeFileSync(bad, "feature, refactoring: grok/grok-4.7 reasoningEffort=high\n");
     const failed = runCli([bad, catalog]);
     assert.equal(failed.exit, 1);
-    assert.match(failed.stdout, /opencode driver/);
+    assert.match(failed.stdout, /not an allowed execution model/);
     const good = path.join(dir, "good.md");
     writeFileSync(good, `${VALID_SHEET}\n`);
     const passed = runCli([good, catalog]);
@@ -510,13 +560,13 @@ describe("checker CLI", () => {
   it("supports no-catalog mode without claiming dispatch validation", () => {
     const dir = mkdtempSync(path.join(tmpdir(), "t3-sheet-"));
     const good = path.join(dir, "good.md");
-    writeFileSync(good, "feature, refactoring: opencode/opencode-go/beam-free variant=max\nsession hook: on\n");
+    writeFileSync(good, "feature, refactoring: codex/gpt-6-luna reasoningEffort=max\nsession hook: on\n");
     const passed = runCli([good]);
     assert.equal(passed.exit, 0);
     assert.match(passed.stdout, /without a catalog/);
     assert.doesNotMatch(passed.stdout, /dispatches/);
     const bad = path.join(dir, "bad.md");
-    writeFileSync(bad, "feature, refactoring: opencode/opencode-go/beam-free variant=low\n");
+    writeFileSync(bad, "feature, refactoring: codex/gpt-6-luna reasoningEffort=low\n");
     assert.equal(runCli([bad]).exit, 1);
   });
 });
